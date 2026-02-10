@@ -1,0 +1,31 @@
+[
+  {
+    "id": "id_001",
+    "title": "Late Night Thoughts",
+    "photo": "",
+    "description": "Sometimes the best ideas show up when you're supposed to be asleep."
+  },
+  {
+    "id": "id_002",
+    "title": "Coffee First",
+    "description": "Nothing productive happens before the first cup of coffee."
+  },
+  {
+    "id": "id_003",
+    "title": "Weekend Mode",
+    "photo": "",
+    "description": "Two days that disappear faster than the rest of the week."
+  },
+  {
+    "id": "id_004",
+    "title": "Debugging Life",
+    "photo": "",
+    "description": "Fixing one problem often reveals three more hiding underneath."
+  },
+  {
+    "id": "id_005",
+    "title": "Small Wins",
+    "photo": "",
+    "description": "Progress is still progress, even when it feels tiny."
+  }
+]

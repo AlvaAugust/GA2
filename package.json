@@ -1,0 +1,25 @@
+{
+  "name": "ga2",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/AlvaAugust/GA2#readme",
+  "bugs": {
+    "url": "https://github.com/AlvaAugust/GA2/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlvaAugust/GA2.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "install": "^0.13.0"
+  },
+  "devDependencies": {}
+}
