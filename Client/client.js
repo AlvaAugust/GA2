@@ -1,16 +1,18 @@
-import React from "react";
-
-ReactDOM.createRoot(document.querySelector("#root")).render(App());
+ReactDOM.createRoot(document.querySelector("#root")).render(<App></App>);
 
 // ALLA FUNKTIONER MED STOR BOKSTAV
 // får endast return ett element, därför måste alltid return ha en div
-
 function App() {
+
+
+    const [post, setPost] = React.useState([]);
+
+
     return (
         <div>
             <Header></Header>
-            <Fyp></Fyp>
-        
+            <Create  setPost={setPost}></Create>
+            <Fyp post ={post} setPost={setPost}></Fyp>
         </div>
     );
 };
@@ -20,7 +22,7 @@ function Header() {
 
     return (
         <header>
-                <h1>Titel</h1>
+            <h1>Titel</h1>
                 <nav>
                     <a href="/">HOME</a>
                     <a href="#create">CREATE</a>
@@ -31,8 +33,8 @@ function Header() {
     );
 };
 
-function Fyp(){
-    const [post, setPost] =React.useState([]);
+function Fyp({post, setPost}){
+  
     React.useEffect(()=>{
         getPost();
     }, []);
@@ -65,3 +67,43 @@ function Fyp(){
         </div>
     );
 };
+
+
+
+function Create({setPost}){
+
+
+    async function savePost(event){
+        event.preventDefault();
+
+        const post = {
+            title: event.target.title.value,
+            description: event.target.description.value
+        };  
+
+        const res = await fetch("/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(post)
+        }); 
+
+        const data = await res.json();
+        console.log(data);  
+        setPost(prev => [data, ...prev]);
+
+
+    }
+
+
+
+    return (
+        <div id = "create" className="content">
+            <h2>Create</h2>
+            <form action="/create" method="post" onSubmit={savePost}>
+                <input type="text" name="title" placeholder="Title" required />
+                <textarea name="description" placeholder="Description" required></textarea>
+                <button type="submit">Create Post</button>
+            </form>
+        </div>
+    );
+}

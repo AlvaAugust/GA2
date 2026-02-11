@@ -8,13 +8,45 @@ app.listen(port,()=>{
 });
 
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use(express.static("client"));
 
-//routes
+const {getData, saveData} = require("./function")
 
+
+//routes
 app.get("/posts", async (req,res)=>{
     const posts = await fs.readFile("posts.json");
     res.json(JSON.parse(posts));
 });
+
+
+//Create
+app.post("/create", async (req,res)=>{
+    const post = req.body;
+    post.id = "id_" + Date.now();
+
+    //När sessions implementeras ska detta läggas till
+    // prod.uid = req.session.uid;
+
+    const allPosts = await getData("posts.json");
+    allPosts.push(post);
+
+    await saveData(allPosts, "posts.json");
+    res.json(post);
+});
+
+
+
+
+
+app.get("#register", async (req,res)=>{
+    res.send("register");
+});
+
+app.get("#login", async (req,res)=>{
+    res.send("login");
+});
+
     
 
