@@ -39,12 +39,16 @@ function Fyp({post, setPost}){
         getPost();
     }, []);
 
+
+    //hämtar posts
     async function getPost(){
         const res = await fetch("/posts");
         const data = await res.json();
         setPost(data);
     };
 
+
+    //raderar posts
     async function deletePost(id){
         const res = await fetch("/posts/" + id, {
             method: "DELETE"

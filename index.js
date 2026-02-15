@@ -37,7 +37,20 @@ app.post("/create", async (req,res)=>{
 });
 
 
+//delete
+app.delete("/posts/:id", async (req,res) => {
+    const allPosts = await getData("posts.json");
+    let filteredPosts = allPosts.filter(p=>p.id != req.params.id);
+    
+    //ingen tas bort
+    if(filteredPosts.length == allPosts.length)
+    {
+        return res.status(400).json({error:"nothing deleted"})
+    }
+    await saveData(filteredPosts, "posts.json");
+    res.status(200).json({message:"deleted"})
 
+});
 
 
 app.get("#register", async (req,res)=>{
