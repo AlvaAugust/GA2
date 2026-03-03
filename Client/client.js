@@ -99,7 +99,6 @@ function Create({setPost}){
     }
 
 
-
     return (
         <div id = "create" className="content">
             <h2>Create</h2>

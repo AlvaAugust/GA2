@@ -52,6 +52,15 @@ app.delete("/posts/:id", async (req,res) => {
 
 });
 
+//edit..
+app.put("/posts:id", async (req,res)=>{
+    const allPosts = await getData("posts.json");
+    const postE 
+
+
+
+})
+
 
 app.get("#register", async (req,res)=>{
     res.send("register");
