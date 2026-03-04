@@ -53,13 +53,23 @@ app.delete("/posts/:id", async (req,res) => {
 });
 
 //edit..
-app.put("/posts:id", async (req,res)=>{
+app.put("/posts/:id", async (req,res)=>{
+    const id = req.params.id
     const allPosts = await getData("posts.json");
-    const postE 
+    const updatedPost = allPosts.find(p=>p.id == id);
+    if(!updatedPost)return res.status(404).json({success: false, message: "Post doesn't exist"})
+
+    updatedPost.title= req.body.title || updatedPost.title;
+    updatedPost.description= req.body.description || updatedPost.description;
+    updatedPost.photo= req.body.photo || updatedPost.photo;
+
+    await saveData(allPosts, "posts.json");
+
+    res.status(200).json({products,sucess:true, message:"Post has been updated"})
+
+});
 
 
-
-})
 
 
 app.get("#register", async (req,res)=>{
@@ -69,6 +79,3 @@ app.get("#register", async (req,res)=>{
 app.get("#login", async (req,res)=>{
     res.send("login");
 });
-
-    
-

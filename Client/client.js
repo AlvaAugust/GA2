@@ -12,6 +12,7 @@ function App() {
         <div>
             <Header></Header>
             <Create  setPost={setPost}></Create>
+            <EditPost editPost = {editPost} setPost = {setPost}></EditPost>
             <Fyp post ={post} setPost={setPost}></Fyp>
         </div>
     );
@@ -57,6 +58,8 @@ function Fyp({post, setPost}){
             setPost(prev => prev.filter(p=>p.id != id));
     };
 
+    
+
     return (
         <div>
             <h2>FYP</h2>
@@ -66,6 +69,7 @@ function Fyp({post, setPost}){
                     <p>{p.description}</p>
                     <p>{p.id}</p>
                     <button onClick={()=>deletePost(p.id)}>Delete</button>
+                    <button onClick={()=>editPost(p.id)}>Edit</button>
                 </div>
             ))}
         </div>
@@ -109,4 +113,50 @@ function Create({setPost}){
             </form>
         </div>
     );
+}
+
+//update a post
+function EditPost(id, updatedPost) {
+
+    async function EditPostF(event){
+
+        event.preventDefault();
+
+        const updatedPost = {
+        title: event.target.title.value || post.name,
+        description: event.target.description.value || post.description,
+        body: JSON.stringify(updatedPost)    
+        };
+
+        const res = await fetch("/posts/"+ post.id,{
+            metod: "PUT",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify(updatedPost)
+        });
+        
+        const data = await res.json();
+
+        console.log("status", res.status, data.message);
+        if(res.ok){
+            setPosts(prev=>
+                prev.map(p=>
+                    p.if===post.id?{...p, ...updatedPost}: p
+                )
+            );
+        }
+    }
+
+    return(
+        <div className="editDiv">
+
+            <form onSubmit={EditPostF}>
+                <input type="text" name="title" placeholder="title"/>
+                <input type="text" name="description" placeholder="description"/>
+                <input type="text" name="photo" placeholder="photo"/>
+                <input type="submit" value="Save"/>
+
+            </form>
+        </div>
+    )
+
 }
