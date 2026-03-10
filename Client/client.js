@@ -6,14 +6,18 @@ function App() {
 
 
     const [post, setPost] = React.useState([]);
-
+    const [editingPost, setEditingPost] = React.useState(null);
+    const editPost = (id) => {
+        const postToEdit = post.find(p => p.id === id);
+        setEditingPost(postToEdit);
+    };
 
     return (
         <div>
             <Header></Header>
+            <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
+            <Fyp post ={post} setPost={setPost} editPost={editPost}></Fyp>
             <Create  setPost={setPost}></Create>
-            <EditPost editPost = {editPost} setPost = {setPost}></EditPost>
-            <Fyp post ={post} setPost={setPost}></Fyp>
         </div>
     );
 };
@@ -34,7 +38,7 @@ function Header() {
     );
 };
 
-function Fyp({post, setPost}){
+function Fyp({post, setPost, editPost}){
   
     React.useEffect(()=>{
         getPost();
@@ -116,20 +120,20 @@ function Create({setPost}){
 }
 
 //update a post
-function EditPost(id, updatedPost) {
+function EditPost({editingPost, setEditingPost, setPost}) {
 
     async function EditPostF(event){
 
         event.preventDefault();
 
         const updatedPost = {
-        title: event.target.title.value || post.name,
-        description: event.target.description.value || post.description,
-        body: JSON.stringify(updatedPost)    
+            title: event.target.title.value || editingPost.title,
+            description: event.target.description.value || editingPost.description,
+            photo: event.target.photo.value || editingPost.photo
         };
 
-        const res = await fetch("/posts/"+ post.id,{
-            metod: "PUT",
+        const res = await fetch("/posts/"+ editingPost.id,{
+            method: "PUT",
             headers: {"Content-Type":"application/json"},
             body: JSON.stringify(updatedPost)
         });
@@ -138,25 +142,32 @@ function EditPost(id, updatedPost) {
 
         console.log("status", res.status, data.message);
         if(res.ok){
-            setPosts(prev=>
+            setPost(prev=>
                 prev.map(p=>
-                    p.if===post.id?{...p, ...updatedPost}: p
+                    p.id === editingPost.id ? {...p, ...updatedPost} : p
                 )
             );
+            setEditingPost(null); // close edit form
         }
     }
+
+    if (!editingPost) return null; // don't render if no post to edit
 
     return(
         <div className="editDiv">
 
             <form onSubmit={EditPostF}>
-                <input type="text" name="title" placeholder="title"/>
-                <input type="text" name="description" placeholder="description"/>
-                <input type="text" name="photo" placeholder="photo"/>
+                <input type="text" name="title" placeholder="title" defaultValue={editingPost.title}/>
+                <input type="text" name="description" placeholder="description" defaultValue={editingPost.description}/>
+                <input type="text" name="photo" placeholder="photo" defaultValue={editingPost.photo}/>
                 <input type="submit" value="Save"/>
-
+                <button type="button" onClick={() => setEditingPost(null)}>Cancel</button>
             </form>
         </div>
     )
+
+}
+
+function Register({register}){
 
 }

@@ -65,16 +65,18 @@ app.put("/posts/:id", async (req,res)=>{
 
     await saveData(allPosts, "posts.json");
 
-    res.status(200).json({products,sucess:true, message:"Post has been updated"})
+    res.status(200).json({success:true, message:"Post has been updated"})
 
+});
+
+app.post("#register", async (req,res)=>{
+    res.send("bru")
 });
 
 
 
 
-app.get("#register", async (req,res)=>{
-    res.send("register");
-});
+
 
 app.get("#login", async (req,res)=>{
     res.send("login");
