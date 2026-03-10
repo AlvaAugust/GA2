@@ -44,14 +44,12 @@ function Fyp({post, setPost, editPost}){
         getPost();
     }, []);
 
-
     //hämtar posts
     async function getPost(){
         const res = await fetch("/posts");
         const data = await res.json();
         setPost(data);
     };
-
 
     //raderar posts
     async function deletePost(id){
@@ -61,7 +59,6 @@ function Fyp({post, setPost, editPost}){
         if (res.status == 200)
             setPost(prev => prev.filter(p=>p.id != id));
     };
-
     
 
     return (
@@ -83,10 +80,8 @@ function Fyp({post, setPost, editPost}){
 
 
 function Create({setPost}){
-
-
     async function savePost(event){
-        event.preventDefault();
+        event.preventDefault(); //stoppar webbsidan från att reload
 
         const post = {
             title: event.target.title.value,
@@ -101,9 +96,7 @@ function Create({setPost}){
 
         const data = await res.json();
         console.log(data);  
-        setPost(prev => [data, ...prev]);
-
-
+        setPost(prev => [data, ...prev]); //new post appears on top of list, doesn't need to refetch
     }
 
 
@@ -150,7 +143,6 @@ function EditPost({editingPost, setEditingPost, setPost}) {
             setEditingPost(null); // close edit form
         }
     }
-
     if (!editingPost) return null; // don't render if no post to edit
 
     return(
@@ -167,7 +159,33 @@ function EditPost({editingPost, setEditingPost, setPost}) {
     )
 
 }
+// defaultValue={}   visar vad den har för value, prefilling a form
 
-function Register({register}){
+function Register({setRegister}){
+    async function saveAccount(event){
+        event.preventDefault(); //stoppar webbsidan från att reload
 
+        const account= {
+            username: event.target.username.value,
+            password:event.target.password.value,
+            /* uid: event.target.uid.value */
+        }
+        const res = await fetch("/register", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(account)
+        });
+        const data = await res.json();
+        console.log(data);
+    }
+
+    return(
+        <div className ="registerDiv">
+            <form onSubmit={saveAccount}>
+                <input type="text" name="username" placeholder="Username"/>
+                <input type="password" name="password" placeholder="Password"/>
+                <button type="submit">Create Account</button>
+            </form>
+        </div>
+    )
 }
