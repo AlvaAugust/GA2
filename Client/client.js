@@ -18,6 +18,7 @@ function App() {
             <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
             <Fyp post ={post} setPost={setPost} editPost={editPost}></Fyp>
             <Create  setPost={setPost}></Create>
+            <Register></Register>
         </div>
     );
 };
@@ -161,14 +162,14 @@ function EditPost({editingPost, setEditingPost, setPost}) {
 }
 // defaultValue={}   visar vad den har för value, prefilling a form
 
-function Register({setRegister}){
+function Register({SetRegister}){
     async function saveAccount(event){
         event.preventDefault(); //stoppar webbsidan från att reload
 
         const account= {
             username: event.target.username.value,
             password:event.target.password.value,
-            /* uid: event.target.uid.value */
+            uid: event.target.uid.value
         }
         const res = await fetch("/register", {
             method: "POST",
@@ -180,11 +181,13 @@ function Register({setRegister}){
     }
 
     return(
-        <div className ="registerDiv">
-            <form onSubmit={saveAccount}>
+        <div>
+            <h2>Register</h2>
+            <form  action ="/register" method="post "onSubmit={saveAccount}>
                 <input type="text" name="username" placeholder="Username"/>
                 <input type="password" name="password" placeholder="Password"/>
                 <button type="submit">Create Account</button>
+                
             </form>
         </div>
     )

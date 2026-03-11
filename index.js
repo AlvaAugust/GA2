@@ -36,6 +36,14 @@ app.post("/create", async (req,res)=>{
     res.json(post);
 });
 
+app.post("/register", async (req,res)=>{
+    const account = req.body;
+    account.uid = "uid_" + Date.now();
+    const accounts = await getData("accounts.json")
+    accounts.push(account);
+
+    await saveData(accounts, "accounts.json")
+});
 
 //delete
 app.delete("/posts/:id", async (req,res) => {
@@ -68,15 +76,6 @@ app.put("/posts/:id", async (req,res)=>{
     res.status(200).json({success:true, message:"Post has been updated"})
 
 });
-
-app.post("#register", async (req,res)=>{
-    res.send("bru")
-});
-
-
-
-
-
 
 app.get("#login", async (req,res)=>{
     res.send("login");
