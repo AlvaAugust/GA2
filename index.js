@@ -37,12 +37,20 @@ app.post("/create", async (req,res)=>{
 });
 
 app.post("/register", async (req,res)=>{
-    const account = req.body;
-    account.uid = "uid_" + Date.now();
-    const accounts = await getData("accounts.json")
-    accounts.push(account);
+    try {
+        const account = req.body;
+        account.uid = "uid_" + Date.now();
+        const accounts = await getData("accounts.json");
+        accounts.push(account);
+        await saveData(accounts, "accounts.json");
 
-    await saveData(accounts, "accounts.json")
+
+        //whats going on??
+        return res.status(201).json({ success: true, account });
+    } catch (error) {
+        console.error("Register error:", error);
+        return res.status(500).json({ success: false, error: error.toString() });
+    }
 });
 
 //delete

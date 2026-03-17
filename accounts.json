@@ -1,1 +1,17 @@
-[]
+[
+   {
+      "username": "test1",
+      "password": "pass123",
+      "uid": "uid_1773744772911"
+   },
+   {
+      "username": "alva",
+      "password": "123",
+      "uid": "uid_1773744798065"
+   },
+   {
+      "username": "alva2",
+      "password": "123",
+      "uid": "uid_1773744982882"
+   }
+]

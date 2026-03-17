@@ -3,8 +3,6 @@ ReactDOM.createRoot(document.querySelector("#root")).render(<App></App>);
 // ALLA FUNKTIONER MED STOR BOKSTAV
 // får endast return ett element, därför måste alltid return ha en div
 function App() {
-
-
     const [post, setPost] = React.useState([]);
     const [editingPost, setEditingPost] = React.useState(null);
     const editPost = (id) => {
@@ -25,7 +23,6 @@ function App() {
 
 
 function Header() {
-
     return (
         <header>
             <h1>Titel</h1>
@@ -77,8 +74,6 @@ function Fyp({post, setPost, editPost}){
         </div>
     );
 };
-
-
 
 function Create({setPost}){
     async function savePost(event){
@@ -162,15 +157,14 @@ function EditPost({editingPost, setEditingPost, setPost}) {
 }
 // defaultValue={}   visar vad den har för value, prefilling a form
 
-function Register({SetRegister}){
+function Register({}){
     async function saveAccount(event){
         event.preventDefault(); //stoppar webbsidan från att reload
 
-        const account= {
+        const account = {
             username: event.target.username.value,
-            password:event.target.password.value,
-            uid: event.target.uid.value
-        }
+            password: event.target.password.value
+        };
         const res = await fetch("/register", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
@@ -183,12 +177,12 @@ function Register({SetRegister}){
     return(
         <div>
             <h2>Register</h2>
-            <form  action ="/register" method="post "onSubmit={saveAccount}>
-                <input type="text" name="username" placeholder="Username"/>
-                <input type="password" name="password" placeholder="Password"/>
+            <form onSubmit={saveAccount}>
+                <input type="text" name="username" placeholder="Username" required />
+                <input type="password" name="password" placeholder="Password" required />
                 <button type="submit">Create Account</button>
-                
             </form>
         </div>
     )
 }
+
