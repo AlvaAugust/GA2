@@ -1,14 +1,16 @@
 ReactDOM.createRoot(document.querySelector("#root")).render(<App></App>);
 
 // ALLA FUNKTIONER MED STOR BOKSTAV
-// får endast return ett element, därför måste alltid return ha en div
 function App() {
+
+
     const [post, setPost] = React.useState([]);
     const [editingPost, setEditingPost] = React.useState(null);
     const editPost = (id) => {
         const postToEdit = post.find(p => p.id === id);
         setEditingPost(postToEdit);
     };
+
 
     return (
         <div>
@@ -17,10 +19,10 @@ function App() {
             <Fyp post ={post} setPost={setPost} editPost={editPost}></Fyp>
             <Create  setPost={setPost}></Create>
             <Register></Register>
+            {/* <Login></Login> */}
         </div>
     );
 };
-
 
 function Header() {
     return (
@@ -42,12 +44,14 @@ function Fyp({post, setPost, editPost}){
         getPost();
     }, []);
 
+
     //hämtar posts
     async function getPost(){
         const res = await fetch("/posts");
         const data = await res.json();
         setPost(data);
     };
+
 
     //raderar posts
     async function deletePost(id){
@@ -76,7 +80,9 @@ function Fyp({post, setPost, editPost}){
 };
 
 function Create({setPost}){
+
     async function savePost(event){
+
         event.preventDefault(); //stoppar webbsidan från att reload
 
         const post = {
@@ -84,11 +90,13 @@ function Create({setPost}){
             description: event.target.description.value
         };  
 
+
         const res = await fetch("/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(post)
         }); 
+
 
         const data = await res.json();
         console.log(data);  
@@ -112,14 +120,15 @@ function Create({setPost}){
 function EditPost({editingPost, setEditingPost, setPost}) {
 
     async function EditPostF(event){
-
         event.preventDefault();
+
 
         const updatedPost = {
             title: event.target.title.value || editingPost.title,
             description: event.target.description.value || editingPost.description,
             photo: event.target.photo.value || editingPost.photo
         };
+
 
         const res = await fetch("/posts/"+ editingPost.id,{
             method: "PUT",
@@ -139,11 +148,11 @@ function EditPost({editingPost, setEditingPost, setPost}) {
             setEditingPost(null); // close edit form
         }
     }
+
     if (!editingPost) return null; // don't render if no post to edit
 
     return(
         <div className="editDiv">
-
             <form onSubmit={EditPostF}>
                 <input type="text" name="title" placeholder="title" defaultValue={editingPost.title}/>
                 <input type="text" name="description" placeholder="description" defaultValue={editingPost.description}/>
@@ -157,32 +166,82 @@ function EditPost({editingPost, setEditingPost, setPost}) {
 }
 // defaultValue={}   visar vad den har för value, prefilling a form
 
-function Register({}){
+function Register(){
+
+    const [message, setMessage] = React.useState(""); //skapar ett medddelande under
     async function saveAccount(event){
+
         event.preventDefault(); //stoppar webbsidan från att reload
+
 
         const account = {
             username: event.target.username.value,
             password: event.target.password.value
         };
+
+
         const res = await fetch("/register", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(account)
         });
+
+
         const data = await res.json();
-        console.log(data);
+
+
+        if (!data.success) {
+            setMessage(data.error || "Registration failed");
+            return;
+        }
+        
+        setMessage("Registration successful.");
+        event.target.username.value = "";
+        event.target.password.value = "";
     }
 
     return(
-        <div>
+
+        <div id="register" className="content">
             <h2>Register</h2>
+            <h3 className="errorMessage">{message}</h3>
             <form onSubmit={saveAccount}>
                 <input type="text" name="username" placeholder="Username" required />
                 <input type="password" name="password" placeholder="Password" required />
                 <button type="submit">Create Account</button>
             </form>
+            
         </div>
     )
 }
 
+/* function Login({loggedIn, setLoggedIn}){
+
+    async function Login(event){
+        event.preventDefault();
+
+        const account = {
+            username: event.target.username.value,
+            password: event.target.password.value
+        }
+
+        const res = await fetch("/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(account)
+        });
+
+        res.ok
+            ? setLoggedIn(true)
+            : console.log("Failed Login")
+    }    
+
+    return(
+        !loggedIn ?
+        <div id="logIn">
+
+        </div>
+    )
+}
+
+ */

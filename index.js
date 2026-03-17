@@ -37,20 +37,30 @@ app.post("/create", async (req,res)=>{
 });
 
 app.post("/register", async (req,res)=>{
-    try {
-        const account = req.body;
-        account.uid = "uid_" + Date.now();
-        const accounts = await getData("accounts.json");
-        accounts.push(account);
-        await saveData(accounts, "accounts.json");
+    const { username, password } = req.body;
 
-
-        //whats going on??
-        return res.status(201).json({ success: true, account });
-    } catch (error) {
-        console.error("Register error:", error);
-        return res.status(500).json({ success: false, error: error.toString() });
+    //trim() ifall space är innan namnet så tas det bort
+    if (!username || !username.trim() || !password || !password.trim()) {
+        return res.status(400).json({ success: false, error: "Required" });
     }
+
+    const accounts = await getData("accounts.json");
+    const exist = accounts.find(acc => acc.username.toLowerCase() === username.trim().toLowerCase());
+    if (exist) {
+        return res.status(400).json({ success: false, error: "Username already exists." });
+    }
+
+    //trim tar bort mellanslaget framför
+    const account = {
+        uid: "uid_" + Date.now(),
+        username: username.trim(),
+        password: password.trim()
+    };
+
+    accounts.push(account);
+    await saveData(accounts, "accounts.json");
+
+    return res.status(201).json({ success: true, account });
 });
 
 //delete
