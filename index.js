@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const fs = require("fs").promises;
+const bcrypt = require("bcryptjs");
 const port = process.env.port || 3000;
 
 app.listen(port,()=>{
@@ -11,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static("client"));
 
-const {getData, saveData} = require("./function")
+const {getData, saveData, auth} = require("./function")
 
 
 //routes
@@ -49,12 +50,13 @@ app.post("/register", async (req,res)=>{
     if (exist) {
         return res.status(400).json({ success: false, error: "Username already exists." });
     }
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     //trim tar bort mellanslaget framför
     const account = {
         uid: "uid_" + Date.now(),
         username: username.trim(),
-        password: password.trim()
+        password: hashedPassword
     };
 
     accounts.push(account);
@@ -95,6 +97,33 @@ app.put("/posts/:id", async (req,res)=>{
 
 });
 
-app.get("#login", async (req,res)=>{
-    res.send("login");
+app.post("/login", async(req,res)=>{
+ 
+    const username = req.body.username;
+    const password = req.body.password;
+ 
+   
+ 
+    if(!username || !password)
+        return res.status(400).json({success: false, message: "username and password required"});
+ 
+   
+ 
+    const accounts = await getData("accounts.json");
+    const account = accounts.find(u => u.username == username);
+ 
+    if(!account)
+        return res.status(401).json({success: false, message: "Invalid username or password"});
+ 
+    const hashedPassword = await bcrypt.compare(password, account.password);
+ 
+    if(!hashedPassword)
+        return res.status(401).json({success: false, message: "Invalid username or password"});
+ 
+    // If you want session support, add express-session middleware and uncomment these lines:
+    // req.session.auth = true;
+    // req.session.uid = account.uid;
+ 
+    res.status(200).json({account, success: true, message: "Login success"});
+    console.log(account);
 });

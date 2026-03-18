@@ -18,5 +18,12 @@ function getData(dir){
     });
 };
 
+function auth(req,res,next){
+    if(!req.session.auth){
+        return res.status(401).json({success: false, message: "Unauthorized"});
+    }
+    next();
+}
 
-module.exports = {getData, saveData};
+
+module.exports = {getData, saveData, auth};

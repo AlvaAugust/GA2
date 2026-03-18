@@ -19,7 +19,7 @@ function App() {
             <Fyp post ={post} setPost={setPost} editPost={editPost}></Fyp>
             <Create  setPost={setPost}></Create>
             <Register></Register>
-            {/* <Login></Login> */}
+            <Login></Login>
         </div>
     );
 };
@@ -212,6 +212,55 @@ function Register(){
             </form>
             
         </div>
+    )
+}
+
+
+
+
+
+function Login(){
+    const [message, setMessage] = React.useState("");
+ 
+    async function login(event){
+ 
+ 
+        event.preventDefault();
+ 
+        const account = {
+            username:event.target.username.value,
+            password:event.target.password.value
+        };
+ 
+        const res = await fetch("/login", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(account)
+        })
+       
+        const data = await res.json();
+        if(!res.ok){
+            setMessage(data.message || "Login failed");
+            return
+        }
+ 
+        setMessage("Login successful!");
+        console.log("Account logged in: ",data.user);
+ 
+    }
+ 
+    return(
+        <div id="login" className="content">
+ 
+            <form action="/login" onSubmit={login} method="post">
+                <input type="text" name="username" placeholder="username" />
+                <input type="text" name="password" placeholder="Password" />
+                <input type="submit" value="login" />
+            </form>
+            {message && <p>{message}</p>}
+           
+        </div>
+ 
     )
 }
 

@@ -1,27 +1,27 @@
 [
    {
-      "uid": "uid_1773744982882",
-      "username": "test1",
-      "password": "pass123"
-   },
-   {
-      "uid": "uid_1773744982882",
+      "uid": "uid_1773831657878",
       "username": "alva",
-      "password": "123"
+      "password": "$2b$12$TnhB/B3DR4Kj33GDvBjczeZRnJPzWn1k59okx4DT2as991YnAyQi."
    },
    {
-      "uid": "uid_1773744982882",
-      "username": "alva2",
-      "password": "123"
-   },
-   {
-      "uid": "uid_1773748047802",
+      "uid": "uid_1773831751278",
       "username": "bob",
-      "password": "secret"
+      "password": "$2b$12$qAWXYWNfFrD6PJbk14U96eiaWOA35A6lsB5n7KDj3n/nyjZIsp7dq"
    },
    {
-      "uid": "uid_1773748515816",
-      "username": "2",
-      "password": "2"
+      "uid": "uid_1773831967275",
+      "username": "uidtest",
+      "password": "$2b$12$2O2siBDVxgKRAI6sjm.sI.9cBeVhy7MDmi7thlwlA8v4sHBBUDqla"
+   },
+   {
+      "uid": "uid_1773833306334",
+      "username": "postuser",
+      "password": "$2b$12$JvV7PskII4vTNrwoaWYCfOhtfAW.IznP5wHM8ik8iHpKHflH6gvgW"
+   },
+   {
+      "uid": "uid_1773833791491",
+      "username": "bob2",
+      "password": "$2b$12$/8sqBNgL0AGsUH12ZMufdujnnJ5l/GEOW7MwsiRIV3sdX/bzeBEx2"
    }
 ]
