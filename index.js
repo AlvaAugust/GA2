@@ -77,12 +77,12 @@ app.post("/register", async (req,res)=>{
 app.delete("/posts/:id", auth, async (req,res) => {
     const allPosts = await getData("posts.json");
 
-    const postToDelete = allPosts.find(p => p.id == req.params.id);
-    if (!postToDelete) {
+    const postD = allPosts.find(p => p.id == req.params.id);
+    if (!postD) {
         return res.status(404).json({error: "Post not found"});
     }
 
-    if (postToDelete.userid != req.session.userid) {
+    if (postD.userid != req.session.userid) {
         return res.status(403).json({error: "You are not authorized to delete this"});
     }
 
