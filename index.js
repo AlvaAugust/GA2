@@ -3,6 +3,7 @@ const app = express();
 const fs = require("fs").promises;
 const bcrypt = require("bcryptjs");
 const port = process.env.port || 3000;
+const session = require("express-session")
 
 app.listen(port,()=>{
     console.log("http://localhost:" + port);
@@ -11,6 +12,14 @@ app.listen(port,()=>{
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static("client"));
+
+//cookies
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
+}))
 
 const {getData, saveData, auth} = require("./function")
 
@@ -23,12 +32,11 @@ app.get("/posts", async (req,res)=>{
 
 
 //Create
-app.post("/create", async (req,res)=>{
+app.post("/create", auth, async (req,res)=>{
     const post = req.body;
     post.id = "id_" + Date.now();
 
-    //När sessions implementeras ska detta läggas till
-    // prod.uid = req.session.uid;
+    post.userid = req.session.userid
 
     const allPosts = await getData("posts.json");
     allPosts.push(post);
@@ -66,26 +74,34 @@ app.post("/register", async (req,res)=>{
 });
 
 //delete
-app.delete("/posts/:id", async (req,res) => {
+app.delete("/posts/:id", auth, async (req,res) => {
     const allPosts = await getData("posts.json");
-    let filteredPosts = allPosts.filter(p=>p.id != req.params.id);
-    
-    //ingen tas bort
-    if(filteredPosts.length == allPosts.length)
-    {
-        return res.status(400).json({error:"nothing deleted"})
-    }
-    await saveData(filteredPosts, "posts.json");
-    res.status(200).json({message:"deleted"})
 
+    const postToDelete = allPosts.find(p => p.id == req.params.id);
+    if (!postToDelete) {
+        return res.status(404).json({error: "Post not found"});
+    }
+
+    if (postToDelete.userid != req.session.userid) {
+        return res.status(403).json({error: "You are not authorized to delete this"});
+    }
+
+    let filteredPosts = allPosts.filter(p => p.id != req.params.id);
+    
+    await saveData(filteredPosts, "posts.json");
+    res.status(200).json({message: "deleted"});
 });
 
 //edit..
-app.put("/posts/:id", async (req,res)=>{
+app.put("/posts/:id", auth, async (req,res)=>{
     const id = req.params.id
     const allPosts = await getData("posts.json");
     const updatedPost = allPosts.find(p=>p.id == id);
     if(!updatedPost)return res.status(404).json({success: false, message: "Post doesn't exist"})
+
+    if (updatedPost.userid != req.session.userid) {
+        return res.status(403).json({error: "You are not authorized to edit this"});
+    }
 
     updatedPost.title= req.body.title || updatedPost.title;
     updatedPost.description= req.body.description || updatedPost.description;
@@ -123,7 +139,10 @@ app.post("/login", async(req,res)=>{
     // If you want session support, add express-session middleware and uncomment these lines:
     // req.session.auth = true;
     // req.session.uid = account.uid;
- 
+
+    req.session.userid = account.uid
+    req.session.auth = true
+     
     res.status(200).json({account, success: true, message: "Login success"});
     console.log(account);
 });

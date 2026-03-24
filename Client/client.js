@@ -56,7 +56,8 @@ function Fyp({post, setPost, editPost}){
     //raderar posts
     async function deletePost(id){
         const res = await fetch("/posts/" + id, {
-            method: "DELETE"
+            method: "DELETE",
+            credentials: 'include'
         });
         if (res.status == 200)
             setPost(prev => prev.filter(p=>p.id != id));
@@ -94,7 +95,8 @@ function Create({setPost}){
         const res = await fetch("/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(post)
+            body: JSON.stringify(post),
+            credentials: 'include'
         }); 
 
 
@@ -133,7 +135,8 @@ function EditPost({editingPost, setEditingPost, setPost}) {
         const res = await fetch("/posts/"+ editingPost.id,{
             method: "PUT",
             headers: {"Content-Type":"application/json"},
-            body: JSON.stringify(updatedPost)
+            body: JSON.stringify(updatedPost),
+            credentials: 'include'
         });
         
         const data = await res.json();
@@ -235,7 +238,8 @@ function Login(){
         const res = await fetch("/login", {
             method:"POST",
             headers:{"Content-Type":"application/json"},
-            body:JSON.stringify(account)
+            body:JSON.stringify(account),
+            credentials: 'include'
         })
        
         const data = await res.json();

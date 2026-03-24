@@ -19,11 +19,11 @@ function getData(dir){
 };
 
 function auth(req,res,next){
-    if(!req.session.auth){
+    if(!req.session.account.auth){
         return res.status(401).json({success: false, message: "Unauthorized"});
     }
     next();
-}
+};
 
 
 module.exports = {getData, saveData, auth};
