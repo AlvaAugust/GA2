@@ -26,8 +26,21 @@ const {getData, saveData, auth} = require("./function")
 
 //routes
 app.get("/posts", async (req,res)=>{
-    const posts = await fs.readFile("posts.json");
-    res.json(JSON.parse(posts));
+    const postss = await fs.readFile("posts.json");
+    const posts = JSON.parse(postss);
+
+    const accounts = await getData("accounts.json")
+
+    const postUsername = posts.map(post => {
+        const account = accounts.find(acc => acc.uid == post.userid);
+
+        return {
+            ...post,
+            username: account ? account.username : "Unknown"
+        }
+    });
+
+    res.json(postUsername);
 });
 
 
@@ -42,7 +55,7 @@ app.post("/create", auth, async (req,res)=>{
     allPosts.push(post);
 
     await saveData(allPosts, "posts.json");
-    res.json(post);
+    res.json({...post, username:req.session.username});
 });
 
 app.post("/register", async (req,res)=>{
@@ -113,12 +126,11 @@ app.put("/posts/:id", auth, async (req,res)=>{
 
 });
 
+//login
 app.post("/login", async(req,res)=>{
  
     const username = req.body.username;
     const password = req.body.password;
- 
-   
  
     if(!username || !password)
         return res.status(400).json({success: false, message: "username and password required"});
@@ -135,14 +147,17 @@ app.post("/login", async(req,res)=>{
  
     if(!hashedPassword)
         return res.status(401).json({success: false, message: "Invalid username or password"});
- 
-    // If you want session support, add express-session middleware and uncomment these lines:
-    // req.session.auth = true;
-    // req.session.uid = account.uid;
 
     req.session.userid = account.uid
+    req.session.username = account.username;
     req.session.auth = true
      
     res.status(200).json({account, success: true, message: "Login success"});
     console.log(account);
 });
+
+//logout
+app.post("/logout", (req,res)=>{
+    req.session.destroy
+    res.json({ success: true, message: "Logged out"});
+})

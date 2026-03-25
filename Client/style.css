@@ -118,6 +118,54 @@ section + section {
     display: block;
 }
 
+/* fullscreen overlay for login/register */
+#register, #create,
+#login {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    background: rgba(3, 10, 28, 0.92);
+    z-index: 9999;
+    display: none;
+    overflow-y: auto;
+    padding: 2rem 1rem;
+}
+
+#register:target, #create:target,
+#login:target {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+#register h1, #create h1,
+#login h1 {
+    margin: 0 0 1rem;
+    font-size: 2rem;
+    color: var(--text);
+    text-align: center;
+}
+
+#register form, #create form,
+#login form {
+    width: min(520px, 100%);
+    background: rgba(8, 21, 54, 0.96);
+    border-radius: 14px;
+    padding: 1.4rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+}
+
+#register .content, #create .content,
+#login .content {
+    width: 100%;
+}
+
 .post {
     margin-bottom: 0.7rem;
     padding: 0.85rem;
@@ -215,3 +263,61 @@ div {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Align buttons in forms */
+#create form,
+#register form,
+#login form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#create form button,
+#register form button,
+#login form button,
+#login form input[type="submit"] {
+    width: auto;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0.5rem;
+}
+
+/* Red background for cancel buttons */
+#create form button[type="button"],
+#register form button[type="button"],
+#login form button[type="button"] {
+    background: linear-gradient(120deg, #ff4f4f, #cc1f1f);
+    color: #fff;
+}
+
+/* Match login submit button to blue */
+#login form input[type="submit"] {
+    background: linear-gradient(120deg, #4f8dff, #1f67ce);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s ease, filter .15s ease;
+}
+
+#login form input[type="submit"]:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+}
+#title{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+html{
+    scroll-behavior: smooth;
+}
+.title{
+    padding: 3%;
+}
+
+
+

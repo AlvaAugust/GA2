@@ -8,5 +8,35 @@
       "uid": "uid_1774351092656",
       "username": "bob",
       "password": "$2b$12$./72uRiQ0U35NJ1JFpxcUe/7qLBNUkVlrw7Bc95nfHdkcz83.UOu2"
+   },
+   {
+      "uid": "uid_1774440098594",
+      "username": "August",
+      "password": "$2b$12$4/mEL2KCye.54qlB1hXPDumQvxJpOZnKYRwgTUhH/c9sPSaytjaiu"
+   },
+   {
+      "uid": "uid_1774440920110",
+      "username": "bumdeluxe",
+      "password": "$2b$12$rpvxzEWueSOjm6luD4PV4OjZfWurGNj/XT2o04CeWU7ZVzLMR2BYu"
+   },
+   {
+      "uid": "uid_1774441311078",
+      "username": "unc",
+      "password": "$2b$12$2NGidcNjqBiswt/.6NW2O.1G6RKzLmdwDNfq2uTndBtPVlWLuXO0i"
+   },
+   {
+      "uid": "uid_1774445417181",
+      "username": "bzzz",
+      "password": "$2b$12$vGhdkznvy3cbGAulVcKj2e12SVgI992QFXgyZEhGLmv3ytTt3FwOu"
+   },
+   {
+      "uid": "uid_1774447096521",
+      "username": "ubhi",
+      "password": "$2b$12$ppllCvFrztUTRKRitFWlSu0wzPAPJIbDMQbWnDQadXqkxzrm3wSs2"
+   },
+   {
+      "uid": "uid_1774447141382",
+      "username": "dwadwa",
+      "password": "$2b$12$H3xzoopPQJrRVrH7WpXSTuUs8bpRXUsDaeVnGsv4Zn6.RD5rwI4Xi"
    }
 ]
