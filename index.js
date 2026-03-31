@@ -9,7 +9,7 @@ app.listen(port,()=>{
     console.log("http://localhost:" + port);
 });
 
-app.use(express.json());
+app.use(express.json()); //tillåter json res.json osv..
 app.use(express.urlencoded({extended:true}));
 app.use(express.static("client"));
 
@@ -27,7 +27,7 @@ const {getData, saveData, auth} = require("./function")
 //routes
 app.get("/posts", async (req,res)=>{
     const postss = await fs.readFile("posts.json");
-    const posts = JSON.parse(postss);
+    const posts = JSON.parse(postss); //covert data
 
     const accounts = await getData("accounts.json")
 

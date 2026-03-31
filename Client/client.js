@@ -87,6 +87,10 @@ function Fyp({ post, setPost, editPost, currentUser }) {
 
     //raderar posts
     async function deletePost(id) {
+
+        const confirm = window.confirm("Delete this product?")
+        if(!confirm) return;
+
         const res = await fetch("/posts/" + id, {
             method: "DELETE",
             credentials: 'include'
@@ -125,6 +129,9 @@ function Create({ setPost }) {
     async function savePost(event) {
 
         event.preventDefault(); //stoppar webbsidan från att reload
+
+        const confirm = window.confirm("Create this product?")
+        if(!confirm) return;
 
         const post = {
             title: event.target.title.value,
@@ -167,6 +174,9 @@ function EditPost({ editingPost, setEditingPost, setPost }) {
     async function EditPostF(event) {
         event.preventDefault();
 
+        const confirm = window.confirm("Edit this product?")
+        if(!confirm) return;
+
 
         const updatedPost = {
             title: event.target.title.value || editingPost.title,
@@ -189,8 +199,10 @@ function EditPost({ editingPost, setEditingPost, setPost }) {
         if (res.ok) {
             setPost(prev =>
                 prev.map(p =>
-                    p.id === editingPost.id ? { ...p, ...updatedPost } : p
+                    p.id == editingPost.id ? { ...p, ...updatedPost } : p
                 )
+                //if p.id == editingPost.id -> händer grej 1 , ifall inte sant händer grej 2(p)
+                //...p   vad betyder
             );
             setEditingPost(null); // close edit form
         }
@@ -217,6 +229,9 @@ function Register() {
     const [message, setMessage] = React.useState(""); //skapar ett medddelande under
     async function saveAccount(event) {
 
+        const confirm = window.confirm("Create this account?")
+        if(!confirm) return;
+
 
         event.preventDefault(); //stoppar webbsidan från att reload
 
@@ -229,6 +244,7 @@ function Register() {
 
         const res = await fetch("/register", {
             method: "POST",
+            //säger vad man skickar med, förbereder sig för json     MELKER LJUGER
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(account)
         });
@@ -267,20 +283,20 @@ function Register() {
 };
 
 
-function Login({ setCurrentUser }) {
+function Login({setCurrentUser}){
     const [message, setMessage] = React.useState("");
 
-    async function login(event) {
+    async function login(event){
 
 
         event.preventDefault();
 
-        const account = {
+        const account={
             username: event.target.username.value,
             password: event.target.password.value
         };
 
-        const res = await fetch("/login", {
+        const res = await fetch("/login",{
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(account),
@@ -288,14 +304,14 @@ function Login({ setCurrentUser }) {
         })
 
         const data = await res.json();
-        if (!res.ok) {
+        if (!res.ok){
             setMessage(data.message || "Login failed");
             return
         }
 
         setMessage("Login successful!");
         console.log("Account logged in: ", data.account);
-        
+
         //erm help!
         localStorage.setItem("currentUser", JSON.stringify(data.account));
         setCurrentUser(data.account);
@@ -304,7 +320,7 @@ function Login({ setCurrentUser }) {
         
     }
 
-    return (
+    return(
         <div id="login" className="content">
             <h1>Log in to your account</h1>
             <form action="/login" onSubmit={login} method="post">
