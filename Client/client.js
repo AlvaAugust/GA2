@@ -44,7 +44,7 @@ function App() {
 function Header({ currentUser }) {
     return (
         <header>
-            <div id="title"> <h1 >✦•┈๑⋅⋯ Forum ⋯⋅๑┈•✦</h1></div>
+            <div id="title"> <h1 >✦•┈๑⋅⋯ Share Space ⋯⋅๑┈•✦</h1></div>
 
             <nav>
 
