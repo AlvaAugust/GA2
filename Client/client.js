@@ -1,33 +1,37 @@
 ReactDOM.createRoot(document.querySelector("#root")).render(<App></App>);
 
-// ALLA FUNKTIONER MED STOR BOKSTAV
 function App() {
-
-
     const [post, setPost] = React.useState([]);
     const [editingPost, setEditingPost] = React.useState(null);
 
-
-
-    //kollar vilken användare MÅSTE LÄRA DIG
     const [currentUser, setCurrentUser] = React.useState(null);
     React.useEffect(() => {
-        //vrf local storage och get Item
-        const storedUser = localStorage.getItem("currentUser");
-        if (storedUser) {
-            setCurrentUser(JSON.parse(storedUser));
+        async function checkLogin() {
+            try {
+                const res = await fetch("/me", {
+                    method: "GET",
+                    credentials: "include"
+                });
+                const data = await res.json();
+
+                if (res.ok && data.loggedIn) {
+                    setCurrentUser(data.user); // ✅ important
+                } else {
+                    setCurrentUser(null);
+                }
+            } catch (err) {
+                console.error("Session check failed", err);
+                setCurrentUser(null);
+            }
         }
+        checkLogin();
     }, []);
 
-
-    //lär dig
     const editPost = (id) => {
         const postToEdit = post.find(p => p.id === id);
         setEditingPost(postToEdit);
     };
 
-
-    //currentUser={currentUser} FYP     setCurrentUser={setCurrentUser}></Login>
     return (
         <div>
             <Header currentUser={currentUser}></Header>
@@ -95,7 +99,8 @@ function Fyp({ post, setPost, editPost, currentUser }) {
             method: "DELETE",
             credentials: 'include'
         });
-        if (res.status == 200)
+        //ifall den har fått ok från servern
+        if (res.ok)
             setPost(prev => prev.filter(p => p.id != id));
     };
 
@@ -312,8 +317,6 @@ function Login({setCurrentUser}){
         setMessage("Login successful!");
         console.log("Account logged in: ", data.account);
 
-        //erm help!
-        localStorage.setItem("currentUser", JSON.stringify(data.account));
         setCurrentUser(data.account);
 
         window.location.href = '#';
@@ -357,9 +360,8 @@ function Logout({ currentUser, setCurrentUser }) {
         const data = await res.json(); //converts to json data
 
 
-        //ifall logout blev hämtad och fungerade
+        //ifall logout blev hämtad och fungeradesetCurrentUser(data.account);
         if (res.ok) {
-            localStorage.removeItem("currentUser"); //radera localstorage data, minns inte den efter
             setCurrentUser(null); //säger att ingen är inloggad efter detta
             setMessage("Logged out successfully");
         }

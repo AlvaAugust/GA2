@@ -58,33 +58,6 @@ app.post("/create", auth, async (req,res)=>{
     res.json({...post, username:req.session.username});
 });
 
-app.post("/register", async (req,res)=>{
-    const { username, password } = req.body;
-
-    //trim() ifall space är innan namnet så tas det bort
-    if (!username || !username.trim() || !password || !password.trim()) {
-        return res.status(400).json({ success: false, error: "Required" });
-    }
-
-    const accounts = await getData("accounts.json");
-    const exist = accounts.find(acc => acc.username.toLowerCase() === username.trim().toLowerCase());
-    if (exist) {
-        return res.status(400).json({ success: false, error: "Username already exists." });
-    }
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    //trim tar bort mellanslaget framför
-    const account = {
-        uid: "uid_" + Date.now(),
-        username: username.trim(),
-        password: hashedPassword
-    };
-
-    accounts.push(account);
-    await saveData(accounts, "accounts.json");
-
-    return res.status(201).json({ success: true, account });
-});
 
 //delete
 app.delete("/posts/:id", auth, async (req,res) => {
@@ -118,12 +91,39 @@ app.put("/posts/:id", auth, async (req,res)=>{
 
     updatedPost.title= req.body.title || updatedPost.title;
     updatedPost.description= req.body.description || updatedPost.description;
-    updatedPost.photo= req.body.photo || updatedPost.photo;
-
     await saveData(allPosts, "posts.json");
 
     res.status(200).json({success:true, message:"Post has been updated"})
 
+});
+
+//register
+app.post("/register", async (req,res)=>{
+    const { username, password } = req.body;
+
+    //trim() ifall space är innan namnet så tas det bort
+    if (!username || !username.trim() || !password || !password.trim()) {
+        return res.status(400).json({ success: false, error: "Required" });
+    }
+
+    const accounts = await getData("accounts.json");
+    const exist = accounts.find(acc => acc.username.toLowerCase() === username.trim().toLowerCase());
+    if (exist) {
+        return res.status(400).json({ success: false, error: "Username already exists." });
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    //trim tar bort mellanslaget framför
+    const account = {
+        uid: "uid_" + Date.now(),
+        username: username.trim(),
+        password: hashedPassword
+    };
+
+    accounts.push(account);
+    await saveData(accounts, "accounts.json");
+
+    return res.status(201).json({ success: true, account });
 });
 
 //login
@@ -158,6 +158,22 @@ app.post("/login", async(req,res)=>{
 
 //logout
 app.post("/logout", (req,res)=>{
-    req.session.destroy
+    req.session.destroy()
     res.json({ success: true, message: "Logged out"});
 })
+
+
+app.get("/me", auth, async (req,res)=>{
+
+    if(!req.session.userid){
+        return res.status(401).json({loggedIn: false});
+    }
+    res.json({
+        loggedIn: true,
+        user: {
+            uid: req.session.userid,
+            username: req.session.username
+        }
+    });
+});
+
