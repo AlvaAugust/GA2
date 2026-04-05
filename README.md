@@ -20,7 +20,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.static("client"));
 ```
 Detta initierar en express-server. De olika "const" definerar olika saker som används senare i koden. Till exempel används express för att skapa webbservern, och fs för att möjliggöra asykron behandling av läsning och skrivning av filer. Dessutom skapas det en port som sedan används i "app.listen", som lyssnar på den angivna porten. Detta skrivs också ut i konsolen för att komma till sidan via en länk.
-
+***
 ### Session och Cookies
 ```js
 app.use(session({
@@ -31,7 +31,7 @@ app.use(session({
 }))
 ```
 Här möjliggörs sessioner i applikationen. Sessioner handlar om att spara ner information om en användare på webbsidan. Data sparas på servern medan en cookie i webbläsaren har en session med ett id, som kopplar den nuvarande användaren till rätt session. Detta är viktigt eftersom det kan finnas flera sessioner på samma webbsida samtidigt. Cookies (identifieringen) används senare i syfte att hantera att skapa, logga in och ut från konton. 
-
+***
 ### Importerar Funktioner
 ```js
 const {getData, saveData, auth} = require("./function")
@@ -67,7 +67,7 @@ module.exports = {getData, saveData, auth};
 ```
 De importerade funktionerna handlar om att spara ner data, hämta data asynkront (Promise) och bestämma om en användare är auktoriserad att göra olika funktioner som finns på hemsidan.
 
-
+***
 ### Routes
 #### Posts
 ```js
@@ -254,3 +254,230 @@ Ifall session.userid inte finns är loggedIn inte sant. Men ifall dey är det ä
 ***
 
 ## Client
+
+
+
+
+
+
+### Start React
+```jsx
+ReactDOM.createRoot(document.querySelector("#root")).render(<App></App>);
+```
+Detta startar react. Det hämtas ett element i HTML där App ska synas, sedan renderas App på sidan.
+
+### App
+```jsx
+function App() {
+    const [post, setPost] = React.useState([]);
+    const [editingPost, setEditingPost] = React.useState(null);
+    const [currentUser, setCurrentUser] = React.useState(null);
+    React.useEffect(() => {
+```
+App är komponenten på sidan där allting sammanställs och sedan visas. Det finns flera konstanter som skrivs in i syfte av att användas i senare funktioner. 
+
+
+```jsx
+    const [editingPost, setEditingPost] = React.useState(null);
+    const [currentUser, setCurrentUser] = React.useState(null);
+```
+
+Konstanterna består av två olika värden, en av nuvarande värde och det uppdaterade värdet. "React.useSatte(null)" står för att det inte används vid detta tillfälle, som används vid uppdatering av en produkt eller ifall en användare är inloggad, eftersom det inte sker hela tidan är den default-värdet null. 
+
+```jsx
+React.useEffect(() => {
+        async function checkLogin() {
+            try {
+                const res = await fetch("/me", {
+                    method: "GET",
+                    credentials: "include"
+                });
+                const data = await res.json();
+                if (res.ok && data.loggedIn) {
+                    setCurrentUser(data.user);
+                } else {
+                    setCurrentUser(null);
+                }
+            } catch (err) {
+                console.error("Session check failed", err);
+                setCurrentUser(null);
+            }
+        }
+        checkLogin();
+    }, []);
+```
+"React.useEffect()" körs en gång vid start, och kör asynkront funktionen "checkLogin" som kollar ifall en man är inloggad på ett konto eller inte. Det skickas en "request" till servers "/me" som ska innehålla sessionen. Det ändras sedan till javascript för att klienten ska kunna hantera informationen. Try och catch håller koll om något är fel och har återgärd.  Ifall användaren är inloggod sparas datan i "currentUser", annars blir det null. Ifall en återgärd behövs skickas ett felmeddelande till konsolen och användaren blir får en utloggad status. 
+
+
+```jsx
+const editPost = (id) => {
+        const postToEdit = post.find(p => p.id === id);
+        setEditingPost(postToEdit);
+    }
+```
+Sedan skapas denna för att kunna ändra i en specifik post. Då letas ett speciellt id upp i en lista, och "find()" skickar resultatet och sparas.
+
+#### React-komponenter
+```jsx
+    return (
+        <div>
+            <Header currentUser={currentUser}></Header>
+            <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
+            <Create setPost={setPost}></Create>
+            <Fyp post={post} setPost={setPost} editPost={editPost} currentUser={currentUser}></Fyp>
+            <Register></Register>
+            <Login setCurrentUser={setCurrentUser}></Login>
+            <Logout currentUser={currentUser} setCurrentUser={setCurrentUser}></Logout>
+        </div>
+    );
+```
+Detta är fortsättningen av App. Sidan är har flera React-komponenter vars funktioner finns här. Datan som tidigare har hämtas skickas in i den komponenten där konstanten står. T.ex behöver Login "setCurrentUser" eftersom den sätter ett nytt värde på "currentUser".
+
+
+### Header
+```jsx
+function Header({ currentUser }) {
+    return (
+        <header>
+            <div id="title"> <h1 >✦•┈๑⋅⋯ Share Space ⋯⋅๑┈•✦</h1></div>
+            <nav>
+                <a href="/">HOME</a>
+                {!currentUser && <a href="#register">REGISTER</a>}
+                {!currentUser && <a href="#login">LOG IN</a>}
+
+                {currentUser && <a href="#create">CREATE</a>}
+                {currentUser && <a href="#logout">LOG OUT</a>}
+            </nav>
+            {currentUser && (
+                <div id="title" className="title">
+                    <h4>Welcome "{currentUser.username}"!</h4>
+                </div>
+            )}
+        </header>
+    );
+};
+```
+Header är en react-komponent som finns för alla som besöker webbsidan och är fyllt av olika länkar (routes). Dock varierar den beroende på vem det är. "HOME" är tillgängligt till alla. Ifall man inte har en "currentUser" (inloggad) kommer man se "REGISTER" "LOG IN". Om man är inloggad syns istället; "CREATE", "LOG OUT" och en del under vars kontonamnet blir välkomnat till sidan. 
+
+"currentUser" är en prop som komponenten "Header" tar emot, det är en status som berättar om en användare är inloggad eller inte. 
+
+***
+
+### Startsida
+```jsx
+function Fyp({ post, setPost, editPost, currentUser }) {
+    React.useEffect(() => {
+        getPost();
+    }, []);
+    async function getPost() {
+        const res = await fetch("/posts");
+        const data = await res.json();
+        setPost(data);
+        console.log(data);
+    };
+```
+Detta är startsidan som använder sig och tar emot flera props. Props inehåller; lista med inlägg, uppdatera post, redigera post och inloggningsstatus. "getPost()" körs på direkten och hämtar alla posts från servern. En asynkron funktion hämtar data från serven/backend. Sedan omvandlas datan till en javascript-array. Datan skrivs också ut i konsolen.
+
+#### Delete post
+```jsx
+    async function deletePost(id) {
+        const confirm = window.confirm("Delete this product?")
+        if(!confirm) return;
+
+        const res = await fetch("/posts/" + id, {
+            method: "DELETE",
+            credentials: 'include'
+        });
+        if (res.ok)
+            setPost(prev => prev.filter(p => p.id != id));
+    };
+```
+Asynkron funktion som raderar en post med ett specifikt id. Confirm är en bekräftelse som stoppar eller genomför raderingen. Det skickas en delete och cookies request till servern/backend med en fetch. Ifall det lyckas uppdateras listan av posts, en ny lista skapas där posten med det specifika id är borttagen.
+
+
+#### HTML-kod
+```jsx
+    return (
+        <div>
+            <div id="title"><h2>FYP</h2></div>
+            {post.map(p => (
+                <div className="post" key={p.id}>
+                    <h3>{p.title}</h3>
+                    <p>{p.description}</p>
+                    <small>Posted by: {p.username}</small>
+                    <br />
+                    {currentUser && currentUser.uid === p.userid && (
+                        <>
+                            <button onClick={() => deletePost(p.id)}>Delete</button>
+                            <button onClick={() => editPost(p.id)}>Edit</button>
+                        </>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+};
+```
+Detta är HTML kod, för hur webbsidan ska se ut för användaren. Knappar som delete och edit syns endast om "currentUser" och det kontot som har skapat post har samma unika userid. 
+
+
+***
+
+### Create
+```jsx
+function Create({ setPost }) {
+    async function savePost(event) {
+        event.preventDefault(); //stoppar webbsidan från att reload
+        const confirm = window.confirm("Create this product?")
+        if(!confirm) return;
+
+        const post = {
+            title: event.target.title.value,
+            description: event.target.description.value
+        };
+
+        const res = await fetch("/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(post),
+            credentials: 'include'
+        });
+
+        const data = await res.json();
+        console.log(data);
+        setPost(prev => [data, ...prev]); //new post appears on top of list, doesn't need to refetch
+        window.location.href = '#'
+    }
+```
+
+
+```jsx
+return (
+        <div id="create" className="content">
+            <h1>Create a post</h1>
+            <form action="/create" method="post" onSubmit={savePost}>
+                <input type="text" name="title" placeholder="Title" maxLength={64} required />
+                <textarea name="description" placeholder="Description" required></textarea>
+                <button type="submit">Create Post</button>
+                <button type="button">Cancel</button>
+            </form>
+        </div>
+    );
+```
+
+
+### Update/Edit
+```jsx
+```
+
+### Register
+```jsx
+```
+
+### Login
+```jsx
+```
+
+### Logout
+```jsx
+```

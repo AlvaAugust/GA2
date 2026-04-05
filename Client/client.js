@@ -3,7 +3,6 @@ ReactDOM.createRoot(document.querySelector("#root")).render(<App></App>);
 function App() {
     const [post, setPost] = React.useState([]);
     const [editingPost, setEditingPost] = React.useState(null);
-
     const [currentUser, setCurrentUser] = React.useState(null);
     React.useEffect(() => {
         async function checkLogin() {
@@ -73,12 +72,13 @@ function Header({ currentUser }) {
     );
 };
 
-function Fyp({ post, setPost, editPost, currentUser }) {
 
+
+
+function Fyp({ post, setPost, editPost, currentUser }) {
     React.useEffect(() => {
         getPost();
     }, []);
-
 
     //hämtar posts
     async function getPost() {
@@ -87,7 +87,6 @@ function Fyp({ post, setPost, editPost, currentUser }) {
         setPost(data);
         console.log(data);
     };
-
 
     //raderar posts
     async function deletePost(id) {
@@ -104,7 +103,6 @@ function Fyp({ post, setPost, editPost, currentUser }) {
             setPost(prev => prev.filter(p => p.id != id));
     };
 
-
     return (
         <div>
             <div id="title"><h2>FYP</h2></div>
@@ -114,7 +112,6 @@ function Fyp({ post, setPost, editPost, currentUser }) {
                     <p>{p.description}</p>
                     <small>Posted by: {p.username}</small>
                     <br />
-
 
                     {/* ifall currentUser och currentUser.uid matchar posts p.userid visas delete och edit */}
                     {currentUser && currentUser.uid === p.userid && (
@@ -167,7 +164,7 @@ function Create({ setPost }) {
                 <input type="text" name="title" placeholder="Title" maxLength={64} required />
                 <textarea name="description" placeholder="Description" required></textarea>
                 <button type="submit">Create Post</button>
-                <button type="button" onClick={() => window.location.href = '#'} style={{ marginLeft: '0.5rem' }}>Cancel</button>
+                <button type="button">Cancel</button>
             </form>
         </div>
     );
@@ -280,7 +277,7 @@ function Register() {
                 <input type="text" name="username" placeholder="Username" maxLength={20} required />
                 <input type="password" name="password" placeholder="Password" minLength={4} required />
                 <button type="submit">Create Account</button>
-                <button type="button" onClick={() => window.location.href = '#'} style={{ marginLeft: '0.5rem' }}>Cancel</button>
+                <button type="button">Cancel</button>
             </form>
 
         </div>
@@ -330,7 +327,7 @@ function Login({setCurrentUser}){
                 <input type="text" name="username" placeholder="Username" />
                 <input type="password" name="password" placeholder="Password" minLength={4} />
                 <input type="submit" value="Log in" />
-                <button type="button" onClick={() => window.location.href = '#'} style={{ marginLeft: '0.5rem' }}>Cancel</button>
+                <button type="button">Cancel</button>
             </form>
             {message && <p>{message}</p>}
 
@@ -339,17 +336,12 @@ function Login({setCurrentUser}){
 }
 
 
-
-
-
 //logout
 function Logout({ currentUser, setCurrentUser }) {
     //currentUser = who,    setCurrentUser = updates the user
 
-
     const [message, setMessage] = React.useState("");
     //text shown to user -> update the text
-
 
     //hämtar /logout från /logout post från index.js
     async function logout() {
@@ -359,7 +351,6 @@ function Logout({ currentUser, setCurrentUser }) {
         });
         const data = await res.json(); //converts to json data
 
-
         //ifall logout blev hämtad och fungeradesetCurrentUser(data.account);
         if (res.ok) {
             setCurrentUser(null); //säger att ingen är inloggad efter detta
@@ -368,7 +359,6 @@ function Logout({ currentUser, setCurrentUser }) {
     }
     if (!currentUser) return null; //if no currentUser render nothing
 
-    //
     return (
         <div id="logout" className="content">
             <h1>Logged in as {currentUser.username}</h1>
