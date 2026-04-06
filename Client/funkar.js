@@ -349,6 +349,7 @@ function Logout({currentUser, setCurrentUser}) {
             method: "POST",
             credentials: 'include' //sends cookies
         });
+        const data = await res.json(); //converts to json data
 
         //ifall logout blev hämtad och fungeradesetCurrentUser(data.account);
         if (res.ok) {
@@ -361,7 +362,7 @@ function Logout({currentUser, setCurrentUser}) {
     return (
         <div id="logout" className="content">
             <h1>Logged in as {currentUser.username}</h1>
-            <button onClick={logout}>Log Out</button>
+            <button onClick={logout}>Log Out</button> {/* logout() function */}
             {message && <p>{message}</p>}
         </div>
     )

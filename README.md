@@ -15,7 +15,7 @@ app.listen(port,()=>{
     console.log("http://localhost:" + port);
 });
 
-app.use(express.json()); //tillåter json res.json osv..
+app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static("client"));
 ```
@@ -427,7 +427,7 @@ Detta är HTML kod, för hur webbsidan ska se ut för användaren. Knappar som d
 ```jsx
 function Create({ setPost }) {
     async function savePost(event) {
-        event.preventDefault(); //stoppar webbsidan från att reload
+        event.preventDefault();
         const confirm = window.confirm("Create this product?")
         if(!confirm) return;
 
@@ -445,11 +445,11 @@ function Create({ setPost }) {
 
         const data = await res.json();
         console.log(data);
-        setPost(prev => [data, ...prev]); //new post appears on top of list, doesn't need to refetch
+        setPost(prev => [data, ...prev]);
         window.location.href = '#'
     }
 ```
-
+Denna funktionen skapar nya inlägg med hjälp av ett formulär. "setPost" är en prop som tas emot för att uppdatera listan som innehåller alla posts. "event.preventDefault()" stoppar sidans naturliga "refresh" när ett formulär skickas, istället hanteras det med JavaScript i backend/servern. En extra bekräftelse skickas till anvädaren. I "const post" hämtas värden som står i formuläret (title, description). Det skickas en request till servern och formulärets information skickas till servern efter datan blir omvandlad till JSON, dessutom skickas cookies med. Svaret från servern tas emot och blir till JavaScript. Listan med posts uppdateras och lägger den nya posten högst upp. Efter det skickas anvädaren tillbaka till startsidan som en stängning av formuläret.
 
 ```jsx
 return (
@@ -464,20 +464,195 @@ return (
         </div>
     );
 ```
+HTML-vänlig JSX kod. Exempelvis blir "class" till "className" istället. Funktionen "savePost" körs. Det finns några begränsningar som t.ex. "maxLength" och "required".  
+***
 
 
 ### Update/Edit
 ```jsx
+function EditPost({ editingPost, setEditingPost, setPost }) {
+    async function EditPostF(event) {
+        event.preventDefault();
+
+        const confirm = window.confirm("Edit this product?")
+        if(!confirm) return;
+
+        const updatedPost = {
+            title: event.target.title.value || editingPost.title,
+            description: event.target.description.value || editingPost.description,
+        };
+
+        const res = await fetch("/posts/" + editingPost.id, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedPost),
+            credentials: 'include'
+        });
 ```
+Detta används för att redigera en post som redan finns i "posts.json" (lista med alla posts). Props som "editingPost" (ska redigeras), "setEditingPost" (ändra vilken post som ska redigeras) och "setPost" (uppdatera post listan) används. En asynkron funktion körs när dess formulär skickas, "(event)" står för datan som har blivit inskrivet i formuläret. Det skapas en konstant med värdet av posten, ifall användaren skriver in något nytt sparas det och annars behålls det gamla. En request skickas till servern/backend för att ändra på postens innehåll. Datan uppdateras, gör om det till json, cookies läggs till (för att kolla behörigheter) och sedan skickas det. 
+
+```jsx
+        const data = await res.json();
+        console.log("status", res.status, data.message);
+
+        if (res.ok) {
+            setPost(prev =>
+                prev.map(p =>
+                    p.id == editingPost.id ? { ...p, ...updatedPost } : p
+                )
+            );
+            setEditingPost(null);
+        }
+    }
+    if (!editingPost) return null;
+```
+Svaret från servern sparas, ifall det lyckas returneras en ny lista. Ifall en post.id matchar den som ska editeras blir den uppdaterad annars behålls den som innan. "setEditing(null)" stänger edit formuläret och en extra säkerthetskontroll läggs till så ifall inget redigeras kommer formuläret inte synas. 
+
+```jsx
+    return (
+        <div className="editDiv">
+            <form onSubmit={EditPostF}>
+                <input type="text" name="title" placeholder="Title" defaultValue={editingPost.title} maxLength={64} />
+                <input type="text" name="description" placeholder="Description" defaultValue={editingPost.description} />
+                <input type="submit" value="Save" />
+                <button type="button" onClick={() => setEditingPost(null)}>Cancel</button>
+            </form>
+        </div>
+    )
+};
+```
+Såhär ser formuläret ut, det finns också en begränsning här. "defaultValue" används för att visa vad den har för "value" innan någon redigering görs.
+***
 
 ### Register
 ```jsx
+function Register(){
+    const [message, setMessage] = React.useState("");
+    async function saveAccount(event) {
+        const confirm = window.confirm("Create this account?")
+        if(!confirm) return;
+        event.preventDefault();
+
+        const account = {
+            username: event.target.username.value,
+            password: event.target.password.value
+        };
+
+        const res = await fetch("/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(account)
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            setMessage(data.error || "Registration failed");
+            return;
+        }
+
+        setMessage("Registration successful");
+        event.target.username.value = "";
+        event.target.password.value = "";
+        window.location.href = '#';
+    }
 ```
+Register funktionen börjar med att skapa en state för ett meddelande, som används för ett status meddelande som ska synas till användaren ifall det gick igenom eller inte. När formuläret skickas in körs en asynkron funktion. Värden hämtas från formuläret (lösenord, användarnamn) som skickas till servern. Efter det tas svaret emot och ifall det inte funkade kommer ett felmeddelande som avbryter registeringen. Om det funkar får användaren se att det var lyckat på hemsidan och båda fälten blir tömda. 
+
+```jsx
+    return (
+        <div id="register" className="content">
+            <h1>Register a new account</h1>
+            <h3 className="errorMessage">{message}</h3>
+            <form onSubmit={saveAccount}>
+                <input type="text" name="username" placeholder="Username" maxLength={20} required />
+                <input type="password" name="password" placeholder="Password" minLength={4} required />
+                <button type="submit">Create Account</button>
+                <button type="button" onClick={() => window.location.href = '#'}>Cancel</button>
+            </form>
+        </div>
+    )
+};
+```
+Formuläret har begränsningar på användarnamn och lösenord för att göra sidan mer säker. När formuläret stängs ner skickas man till "#" som är startsidan. 
+***
 
 ### Login
 ```jsx
+function Login({setCurrentUser}){
+    const [message, setMessage] = React.useState("");
+    async function login(event){
+        event.preventDefault();
+
+        const account={
+            username: event.target.username.value,
+            password: event.target.password.value
+        };
+
+        const res = await fetch("/login",{
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(account),
+            credentials: 'include'
+        })
+
+        const data = await res.json();
+        if (!res.ok){
+            setMessage(data.message || "Login failed");
+            return
+        }
+
+        setMessage("Login successful!");
+        console.log("Account logged in: ", data.account);
+        setCurrentUser(data.account);
+        window.location.href = "#";
+    }
+
 ```
+Här loggar man in på kontot som har skapats och därför behöver Login funktionen ha möjlighet att använda prop "setCurrentUser", ett status meddelande skapas här också. En asynkronfunktion tar hand om login och, hämtar datan som har blivit inskriven i formuläret i konstanten "account". Det skickas en förfrågan till servern, som skickar med inloggningdatan och cookies skickas med för att servern ska minnas användaren. Ifall servern skickar tillbaka ett felmeddelande (t.ex. fel lösenord eller användarnamn) visas ett felmeddelande upp för användaren. Om det lyckas syns ett meddelande som visar att det har lyckats och konsolen får ett meddelande om vem som har loggat in. "setCurrentUser" får ny data med den som har loggat in, det gör så resten av appen också får veta vem som är inloggad.
+```jsx
+    return(
+        <div id="login" className="content">
+            <h1>Log in to your account</h1>
+            <form action="/login" onSubmit={login} method="post">
+                <input type="text" name="username" placeholder="Username" />
+                <input type="password" name="password" placeholder="Password" minLength={4} />
+                <input type="submit" value="Log in" />
+                <button type="button" onClick={() => window.location.href = '#'}>Cancel</button>
+            </form>
+            {message && <p>{message}</p>}
+        </div>
+    )
+}
+```
+HTML-kod som visar hur formuläret ser ut.
+***
 
 ### Logout
 ```jsx
+function Logout({currentUser, setCurrentUser}){
+    const [message, setMessage] = React.useState("");
+
+    async function logout() {
+        const res = await fetch("/logout", {
+            method: "POST",
+            credentials: 'include'
+        });
+        if (res.ok) {
+            setCurrentUser(null);
+            setMessage("Logged out successfully");
+        }
+    }
+    if (!currentUser) return null;
+
+    return (
+        <div id="logout" className="content">
+            <h1>Logged in as {currentUser.username}</h1>
+            <button onClick={logout}>Log Out</button>
+            {message && <p>{message}</p>}
+        </div>
+    )
+};
 ```
+Logout kräver props som "currentUser" och "setCurrentUser", för att ha reda på vem som är inloggad och ändrar vem som är inloggad. När knappen blir klickad körs funktionen. Det börjar med att en request skickas till serverns "/logout" och cookies skickas med. Servern tar bort sessionen, och sätter ett nytt värde på "currentUser" vilket blir null (alltså ingen inloggad). Om ingen är inloggad kommer detta inte synas alls och är en extra säkerhetsåtgärd.
+Det som visas på sidan är vem man är inloggad som och en knapp för att logga ut, samt ett meddelande ifall man blev utloggad. 
