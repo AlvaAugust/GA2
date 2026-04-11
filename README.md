@@ -72,23 +72,31 @@ De importerade funktionerna handlar om att spara ner data, hämta data asynkront
 #### Posts
 ```js
 app.get("/posts", async (req,res)=>{
-    const postss = await fs.readFile("posts.json");
-    const posts = JSON.parse(postss);
+    try{
+        const postss = await fs.readFile("posts.json");
+        const posts = JSON.parse(postss); //covert data
 
-    const accounts = await getData("accounts.json")
+        const accounts = await getData("accounts.json")
 
-    const postUsername = posts.map(post => {
-        const account = accounts.find(acc => acc.uid == post.userid);
+            const postUsername = posts.map(post => {
+                const account = accounts.find(acc => acc.uid == post.userid);
 
-        return {
-            ...post,
-            username: account ? account.username : "Unknown"
-        }
-    });
-    res.json(postUsername);
+                return {
+                    ...post,
+                    username: account ? account.username : "Unknown"
+                }
+            });
+
+            res.json(postUsername);
+    } catch (err) {
+        console.error("posts failed", err);
+        res.status(500).json({ error : "Posts went wrong"})
+    }
 });
 ```
 Här hämtas posts, som har sparats i en separat fil vid namn "posts.json". Denna fil blir läst, men använder något som heter "await", vilket betyder att den väntar att filen har lästs klart innan den går vidare till nästa steg. "JSON.parse" används för att omvandla datan i "posts.json" (listan som innehåller alla posts) till en java-script array vilket gör det hanterbart java-script och "map()" i detta fallet. Det hämtas också konton. Efter detta skapas en "map()" som hämtar kontons.uid (ett specifikt id för ett konto). Efter det returneras post, med ett account.username, men ifall det inte finns kommer det stå "Unknown". Slutligen skickas resultatet tillbaka till som en JSON till klienten. Den innehåller alla posts och ett användarnamn.
+
+Try and catch används för att hålla koll på fel, så ifall första delen av koden inte funkar kommer ett felmeddelande skickas med status(500) vilket handlar om ett server error. 
 
 #### Create
 ```js
@@ -323,7 +331,7 @@ Sedan skapas denna för att kunna ändra i en specifik post. Då letas ett speci
         <div>
             <Header currentUser={currentUser}></Header>
             <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
-            <Create setPost={setPost}></Create>
+            <Create setPost={setPost} currentUser={currentUser}></Create>
             <Fyp post={post} setPost={setPost} editPost={editPost} currentUser={currentUser}></Fyp>
             <Register></Register>
             <Login setCurrentUser={setCurrentUser}></Login>
@@ -425,7 +433,10 @@ Detta är HTML kod, för hur webbsidan ska se ut för användaren. Knappar som d
 
 ### Create
 ```jsx
-function Create({ setPost }) {
+function Create({setPost, currentUser}) {
+
+    if (!currentUser) return null;
+
     async function savePost(event) {
         event.preventDefault();
         const confirm = window.confirm("Create this product?")
@@ -449,7 +460,7 @@ function Create({ setPost }) {
         window.location.href = '#'
     }
 ```
-Denna funktionen skapar nya inlägg med hjälp av ett formulär. "setPost" är en prop som tas emot för att uppdatera listan som innehåller alla posts. "event.preventDefault()" stoppar sidans naturliga "refresh" när ett formulär skickas, istället hanteras det med JavaScript i backend/servern. En extra bekräftelse skickas till anvädaren. I "const post" hämtas värden som står i formuläret (title, description). Det skickas en request till servern och formulärets information skickas till servern efter datan blir omvandlad till JSON, dessutom skickas cookies med. Svaret från servern tas emot och blir till JavaScript. Listan med posts uppdateras och lägger den nya posten högst upp. Efter det skickas anvädaren tillbaka till startsidan som en stängning av formuläret.
+Denna funktionen skapar nya inlägg med hjälp av ett formulär. "setPost" är en prop som tas emot för att uppdatera listan som innehåller alla posts, och currentUser används för att checka ifall någon är inloggad eller inte. Ifall ingen är inloggad kommer detta inte renderas alls, så ingen kan ha åtkomst till det genom url. "event.preventDefault()" stoppar sidans naturliga "refresh" när ett formulär skickas, istället hanteras det med JavaScript i backend/servern. En extra bekräftelse skickas till anvädaren. I "const post" hämtas värden som står i formuläret (title, description). Det skickas en request till servern och formulärets information skickas till servern efter datan blir omvandlad till JSON, dessutom skickas cookies med. Svaret från servern tas emot och blir till JavaScript. Listan med posts uppdateras och lägger den nya posten högst upp. Efter det skickas anvädaren tillbaka till startsidan som en stängning av formuläret.
 
 ```jsx
 return (

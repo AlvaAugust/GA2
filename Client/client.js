@@ -36,7 +36,7 @@ function App() {
         <div>
             <Header currentUser={currentUser}></Header>
             <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
-            <Create setPost={setPost}></Create>
+            <Create setPost={setPost} currentUser={currentUser}></Create>
             <Fyp post={post} setPost={setPost} editPost={editPost} currentUser={currentUser}></Fyp>
             <Register></Register>
             <Login setCurrentUser={setCurrentUser}></Login>
@@ -127,7 +127,9 @@ function Fyp({post, setPost, editPost, currentUser}) {
     );
 };
 
-function Create({setPost}) {
+function Create({setPost, currentUser}) {
+
+    if (!currentUser) return null;
 
     async function savePost(event) {
 
