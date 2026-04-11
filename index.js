@@ -53,7 +53,6 @@ app.get("/posts", async (req,res)=>{
 //Create
 app.post("/create", auth, async (req,res)=>{
     
-
     const post = req.body;
     post.id = "id_" + Date.now();
 
