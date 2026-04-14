@@ -36,7 +36,7 @@ function App() {
         <div>
             <Header currentUser={currentUser}></Header>
             <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
-            <Create setPost={setPost} currentUser={currentUser}></Create>
+            <Create setPost={setPost}></Create>
             <Fyp post={post} setPost={setPost} editPost={editPost} currentUser={currentUser}></Fyp>
             <Register></Register>
             <Login setCurrentUser={setCurrentUser}></Login>
@@ -127,9 +127,7 @@ function Fyp({post, setPost, editPost, currentUser}) {
     );
 };
 
-function Create({setPost, currentUser}) {
-
-    if (!currentUser) return null;
+function Create({setPost}) {
 
     async function savePost(event) {
 
@@ -351,6 +349,7 @@ function Logout({currentUser, setCurrentUser}) {
             method: "POST",
             credentials: 'include' //sends cookies
         });
+        const data = await res.json(); //converts to json data
 
         //ifall logout blev hämtad och fungeradesetCurrentUser(data.account);
         if (res.ok) {
@@ -363,7 +362,7 @@ function Logout({currentUser, setCurrentUser}) {
     return (
         <div id="logout" className="content">
             <h1>Logged in as {currentUser.username}</h1>
-            <button onClick={logout}>Log Out</button>
+            <button onClick={logout}>Log Out</button> {/* logout() function */}
             {message && <p>{message}</p>}
         </div>
     )

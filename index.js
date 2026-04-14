@@ -26,26 +26,33 @@ const {getData, saveData, auth} = require("./function")
 
 //routes
 app.get("/posts", async (req,res)=>{
-    const postss = await fs.readFile("posts.json");
-    const posts = JSON.parse(postss); //covert data
+    try{
+        const postss = await fs.readFile("posts.json");
+        const posts = JSON.parse(postss); //covert data
 
-    const accounts = await getData("accounts.json")
+        const accounts = await getData("accounts.json")
 
-    const postUsername = posts.map(post => {
-        const account = accounts.find(acc => acc.uid == post.userid);
+            const postUsername = posts.map(post => {
+                const account = accounts.find(acc => acc.uid == post.userid);
 
-        return {
-            ...post,
-            username: account ? account.username : "Unknown"
-        }
-    });
+                return {
+                    ...post,
+                    username: account ? account.username : "Unknown"
+                }
+            });
 
-    res.json(postUsername);
+            res.json(postUsername);
+    } catch (err) {
+        console.error("posts failed", err);
+        res.status(500).json({ error : "Posts went wrong"})
+    }
+    
 });
 
 
 //Create
 app.post("/create", auth, async (req,res)=>{
+    
     const post = req.body;
     post.id = "id_" + Date.now();
 
