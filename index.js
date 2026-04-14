@@ -18,7 +18,7 @@ app.use(session({
   secret: 'keyboard cat',
   resave: false,
   saveUninitialized: true,
-  cookie: { secure: false }
+  cookie: {secure: false}
 }))
 
 const {getData, saveData, auth} = require("./function")
@@ -32,8 +32,8 @@ app.get("/posts", async (req,res)=>{
 
         const accounts = await getData("accounts.json")
 
-            const postUsername = posts.map(post => {
-                const account = accounts.find(acc => acc.uid == post.userid);
+            const postUsername = posts.map(post=> {
+                const account = accounts.find(acc=> acc.uid == post.userid);
 
                 return {
                     ...post,
@@ -42,9 +42,10 @@ app.get("/posts", async (req,res)=>{
             });
 
             res.json(postUsername);
-    } catch (err) {
+    } 
+    catch (err) {
         console.error("posts failed", err);
-        res.status(500).json({ error : "Posts went wrong"})
+        res.status(500).json({error : "Posts went wrong"})
     }
     
 });
@@ -70,16 +71,16 @@ app.post("/create", auth, async (req,res)=>{
 app.delete("/posts/:id", auth, async (req,res)=>{
     const allPosts = await getData("posts.json");
 
-    const postD = allPosts.find(p => p.id == req.params.id);
-    if (!postD) {
+    const postD = allPosts.find(p=> p.id == req.params.id);
+    if(!postD) {
         return res.status(404).json({error: "Post not found"});
     }
 
-    if (postD.userid != req.session.userid) {
+    if(postD.userid != req.session.userid) {
         return res.status(403).json({error: "You are not authorized to delete this"});
     }
 
-    let filteredPosts = allPosts.filter(p => p.id != req.params.id);
+    let filteredPosts = allPosts.filter(p=> p.id != req.params.id);
     
     await saveData(filteredPosts, "posts.json");
     res.status(200).json({message: "deleted"});
@@ -92,7 +93,7 @@ app.put("/posts/:id", auth, async (req,res)=>{
     const updatedPost = allPosts.find(p=>p.id == id);
     if(!updatedPost)return res.status(404).json({success: false, message: "Post doesn't exist"})
 
-    if (updatedPost.userid != req.session.userid) {
+    if(updatedPost.userid != req.session.userid) {
         return res.status(403).json({error: "You are not authorized to edit this"});
     }
 
@@ -104,22 +105,22 @@ app.put("/posts/:id", auth, async (req,res)=>{
 });
 
 app.post("/register", async (req,res)=>{
-    const { username, password } = req.body;
+    const {username, password}= req.body;
 
     //trim() space tas bort
-    if (!username || !username.trim() || !password || !password.trim()) {
-        return res.status(400).json({ success: false, error: "Required" });
+    if(!username || !username.trim() || !password || !password.trim()) {
+        return res.status(400).json({success: false, error: "Required"});
     }
 
     const accounts = await getData("accounts.json");
-    const exist = accounts.find(acc => acc.username.toLowerCase());
-    if (exist) {
-        return res.status(400).json({ success: false, error: "Username already exists" });
+    const exist = accounts.find(acc=> acc.username.toLowerCase());
+    if(exist){
+        return res.status(400).json({success: false, error: "Username already exists"});
     }
     const hashedPassword = await bcrypt.hash(password, 12);
 
     //trim tar bort mellanslaget framför
-    const account = {
+    const account={
         uid: "uid_" + Date.now(),
         username: username.trim(),
         password: hashedPassword
@@ -128,7 +129,7 @@ app.post("/register", async (req,res)=>{
     accounts.push(account);
     await saveData(accounts, "accounts.json");
 
-    return res.status(201).json({ success: true, account });
+    return res.status(201).json({success: true, account});
 });
 
 //login
@@ -143,7 +144,7 @@ app.post("/login", async(req,res)=>{
    
  
     const accounts = await getData("accounts.json");
-    const account = accounts.find(u => u.username == username);
+    const account = accounts.find(u=> u.username == username);
  
     if(!account)
         return res.status(401).json({success: false, message: "Invalid username or password"});
@@ -164,7 +165,7 @@ app.post("/login", async(req,res)=>{
 //logout
 app.post("/logout", (req,res)=>{
     req.session.destroy()
-    res.json({ success: true, message: "Logged out"});
+    res.json({success: true, message: "Logged out"});
 })
 
 

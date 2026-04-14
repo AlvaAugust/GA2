@@ -1,25 +1,28 @@
 ReactDOM.createRoot(document.querySelector("#root")).render(<App></App>);
 
-function App() {
+function App(){
     const [post, setPost] = React.useState([]);
     const [editingPost, setEditingPost] = React.useState(null);
 
     const [currentUser, setCurrentUser] = React.useState(null);
-    React.useEffect(() => {
-        async function checkLogin() {
-            try {
+    React.useEffect(()=>{
+        async function checkLogin(){
+            try{
                 const res = await fetch("/me", {
                     method: "GET",
                     credentials: "include"
                 });
                 const data = await res.json();
 
-                if (res.ok && data.loggedIn) {
-                    setCurrentUser(data.user); // ✅ important
-                } else {
+
+                //&& = första funkar, andra kör
+                if(res.ok && data.loggedIn){
+                    setCurrentUser(data.user);
+                } 
+                else{
                     setCurrentUser(null);
                 }
-            } catch (err) {
+            } catch(err){
                 console.error("Session check failed", err);
                 setCurrentUser(null);
             }
@@ -27,12 +30,12 @@ function App() {
         checkLogin();
     }, []);
 
-    const editPost = (id) => {
-        const postToEdit = post.find(p => p.id === id);
+    const editPost = (id)=>{
+        const postToEdit = post.find(p=> p.id == id);
         setEditingPost(postToEdit);
     };
 
-    return (
+    return(
         <div>
             <Header currentUser={currentUser}></Header>
             <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
@@ -45,8 +48,8 @@ function App() {
     );
 };
 
-function Header({currentUser}) {
-    return (
+function Header({currentUser}){
+    return(
         <header>
             <div id="title"> <h1 >✦•┈๑⋅⋯ Share Space ⋯⋅๑┈•✦</h1></div>
 
@@ -76,13 +79,13 @@ function Header({currentUser}) {
 
 
 
-function Fyp({post, setPost, editPost, currentUser}) {
-    React.useEffect(() => {
+function Fyp({post, setPost, editPost, currentUser}){
+    React.useEffect(()=>{
         getPost();
-    }, []);
+    },[]);
 
     //hämtar posts
-    async function getPost() {
+    async function getPost(){
         const res = await fetch("/posts");
         const data = await res.json();
         setPost(data);
@@ -90,7 +93,7 @@ function Fyp({post, setPost, editPost, currentUser}) {
     };
 
     //raderar posts
-    async function deletePost(id) {
+    async function deletePost(id){
 
         const confirm = window.confirm("Delete this product?")
         if(!confirm) return;
@@ -100,14 +103,14 @@ function Fyp({post, setPost, editPost, currentUser}) {
             credentials: 'include'
         });
         //ifall den har fått ok från servern
-        if (res.ok)
-            setPost(prev => prev.filter(p => p.id != id));
+        if(res.ok)
+            setPost(prev => prev.filter(p=> p.id != id));
     };
 
-    return (
+    return(
         <div>
             <div id="title"><h2>FYP</h2></div>
-            {post.map(p => (
+            {post.map(p=>(
                 <div className="post" key={p.id}>
                     <h3>{p.title}</h3>
                     <p>{p.description}</p>
@@ -115,10 +118,10 @@ function Fyp({post, setPost, editPost, currentUser}) {
                     <br />
 
                     {/* ifall currentUser och currentUser.uid matchar posts p.userid visas delete och edit */}
-                    {currentUser && currentUser.uid === p.userid && (
+                    {currentUser && currentUser.uid == p.userid &&(
                         <>
-                            <button onClick={() => deletePost(p.id)}>Delete</button>
-                            <button onClick={() => editPost(p.id)}>Edit</button>
+                            <button onClick={()=> deletePost(p.id)}>Delete</button>
+                            <button onClick={()=> editPost(p.id)}>Edit</button>
                         </>
                     )}
                 </div>
@@ -127,24 +130,24 @@ function Fyp({post, setPost, editPost, currentUser}) {
     );
 };
 
-function Create({setPost, currentUser}) {
+function Create({setPost, currentUser}){
 
-    if (!currentUser) return null;
+    if(!currentUser) return null;
 
-    async function savePost(event) {
+    async function savePost(event){
 
         event.preventDefault(); //stoppar webbsidan från att reload
 
         const confirm = window.confirm("Create this product?")
         if(!confirm) return;
 
-        const post = {
+        const post={
             title: event.target.title.value,
             description: event.target.description.value
         };
 
 
-        const res = await fetch("/create", {
+        const res = await fetch("/create",{
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(post),
@@ -154,36 +157,36 @@ function Create({setPost, currentUser}) {
 
         const data = await res.json();
         console.log(data);
-        setPost(prev => [data, ...prev]); //new post appears on top of list, doesn't need to refetch
+        setPost(prev=>[data, ...prev]); //new post appears on top of list, doesn't need to refetch
 
         window.location.href = '#'//add this to everything
     }
 
 
-    return (
+    return(
         <div id="create" className="content">
             <h1>Create a post</h1>
             <form action="/create" method="post" onSubmit={savePost}>
                 <input type="text" name="title" placeholder="Title" maxLength={64} required />
                 <textarea name="description" placeholder="Description" required></textarea>
                 <button type="submit">Create Post</button>
-                <button type="button" onClick={() => window.location.href = '#'}>Cancel</button>
+                <button type="button" onClick={()=> window.location.href = '#'}>Cancel</button>
             </form>
         </div>
     );
 };
 
 //update a post
-function EditPost({editingPost, setEditingPost, setPost}) {
+function EditPost({editingPost, setEditingPost, setPost}){
 
-    async function EditPostF(event) {
+    async function EditPostF(event){
         event.preventDefault();
 
         const confirm = window.confirm("Edit this product?")
         if(!confirm) return;
 
 
-        const updatedPost = {
+        const updatedPost={
             title: event.target.title.value || editingPost.title,
             description: event.target.description.value || editingPost.description,
         };
@@ -201,9 +204,9 @@ function EditPost({editingPost, setEditingPost, setPost}) {
         console.log("status", res.status, data.message);
 
         //vad betyder detta
-        if (res.ok) {
-            setPost(prev =>
-                prev.map(p =>
+        if(res.ok){
+            setPost(prev=>
+                prev.map(p=>
                     p.id == editingPost.id ? { ...p, ...updatedPost } : p
                 )
                 //if p.id == editingPost.id -> händer grej 1 , ifall inte sant händer grej 2(p)
@@ -212,15 +215,15 @@ function EditPost({editingPost, setEditingPost, setPost}) {
         }
     }
 
-    if (!editingPost) return null; // don't render if no post to edit
+    if(!editingPost) return null; // don't render if no post to edit
 
-    return (
+    return(
         <div className="editDiv">
             <form onSubmit={EditPostF}>
                 <input type="text" name="title" placeholder="Title" defaultValue={editingPost.title} maxLength={64} />
                 <input type="text" name="description" placeholder="Description" defaultValue={editingPost.description} />
                 <input type="submit" value="Save" />
-                <button type="button" onClick={() => setEditingPost(null)}>Cancel</button>
+                <button type="button" onClick={()=> setEditingPost(null)}>Cancel</button>
             </form>
         </div>
     )
@@ -231,7 +234,7 @@ function EditPost({editingPost, setEditingPost, setPost}) {
 function Register(){
 
     const [message, setMessage] = React.useState(""); //skapar ett medddelande under
-    async function saveAccount(event) {
+    async function saveAccount(event){
 
         const confirm = window.confirm("Create this account?")
         if(!confirm) return;
@@ -240,13 +243,13 @@ function Register(){
         event.preventDefault(); //stoppar webbsidan från att reload
 
 
-        const account = {
+        const account={
             username: event.target.username.value,
             password: event.target.password.value
         };
 
 
-        const res = await fetch("/register", {
+        const res=await fetch("/register",{
             method: "POST",
             //säger vad man skickar med, förbereder sig för json     MELKER LJUGER
             headers: { "Content-Type": "application/json" },
@@ -257,7 +260,7 @@ function Register(){
         const data = await res.json();
 
 
-        if (!data.success) {
+        if(!data.success){
             setMessage(data.error || "Registration failed");
             return;
         }
@@ -270,7 +273,7 @@ function Register(){
         window.location.href = '#';
     }
 
-    return (
+    return(
 
         <div id="register" className="content">
             <h1>Register a new account</h1>
@@ -279,7 +282,7 @@ function Register(){
                 <input type="text" name="username" placeholder="Username" maxLength={20} required />
                 <input type="password" name="password" placeholder="Password" minLength={4} required />
                 <button type="submit">Create Account</button>
-                <button type="button" onClick={() => window.location.href = '#'}>Cancel</button>
+                <button type="button" onClick={()=> window.location.href = '#'}>Cancel</button>
             </form>
 
         </div>
@@ -329,38 +332,37 @@ function Login({setCurrentUser}){
                 <input type="text" name="username" placeholder="Username" />
                 <input type="password" name="password" placeholder="Password" minLength={4} />
                 <input type="submit" value="Log in" />
-                <button type="button" onClick={() => window.location.href = '#'}>Cancel</button>
+                <button type="button" onClick={()=> window.location.href = '#'}>Cancel</button>
             </form>
             {message && <p>{message}</p>}
-
         </div>
     )
 }
 
 
 //logout
-function Logout({currentUser, setCurrentUser}) {
+function Logout({currentUser, setCurrentUser}){
     //currentUser = who,    setCurrentUser = updates the user
 
     const [message, setMessage] = React.useState("");
     //text shown to user -> update the text
 
     //hämtar /logout från /logout post från index.js
-    async function logout() {
-        const res = await fetch("/logout", {
+    async function logout(){
+        const res = await fetch("/logout",{
             method: "POST",
             credentials: 'include' //sends cookies
         });
 
         //ifall logout blev hämtad och fungeradesetCurrentUser(data.account);
-        if (res.ok) {
+        if(res.ok){
             setCurrentUser(null); //säger att ingen är inloggad efter detta
             setMessage("Logged out successfully");
         }
     }
-    if (!currentUser) return null; //if no currentUser render nothing
+    if(!currentUser) return null; //if no currentUser render nothing
 
-    return (
+    return(
         <div id="logout" className="content">
             <h1>Logged in as {currentUser.username}</h1>
             <button onClick={logout}>Log Out</button>

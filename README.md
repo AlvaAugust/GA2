@@ -78,8 +78,8 @@ app.get("/posts", async (req,res)=>{
 
         const accounts = await getData("accounts.json")
 
-            const postUsername = posts.map(post => {
-                const account = accounts.find(acc => acc.uid == post.userid);
+            const postUsername = posts.map(post=>{
+                const account = accounts.find(acc=> acc.uid==post.userid);
 
                 return {
                     ...post,
@@ -121,7 +121,7 @@ För att använda denna routen måste man ha behörighet (auth), och i detta fal
 app.delete("/posts/:id", auth, async (req,res)=>{
     const allPosts = await getData("posts.json");
 
-    const postD = allPosts.find(p => p.id == req.params.id);
+    const postD = allPosts.find(p=> p.id==req.params.id);
     if (!postD) {
         return res.status(404).json({error: "Post not found"});
     }
@@ -130,10 +130,10 @@ app.delete("/posts/:id", auth, async (req,res)=>{
         return res.status(403).json({error: "You are not authorized to delete this"});
     }
 
-    let filteredPosts = allPosts.filter(p => p.id != req.params.id);
+    let filteredPosts = allPosts.filter(p=> p.id != req.params.id);
     
     await saveData(filteredPosts, "posts.json");
-    res.status(200).json({message: "deleted"});
+    res.status(200).json({message:"deleted"});
 });
 ```
 Posts.json hämtas, sedan skapas postD, och letar igenom allt i posts.json efter ett id som matchar det av den som ska raderas. Ifall det id inte finns skickas ett error meddelande. Ifall postD och userid på posten som ska raderas inte är samma har man inte behörighet att radera. Sedan filtreras posts.json och en lista utan den raderade posten skapas. Sedan sparas den nya listan i posts.json. Sedan skickas det ett meddelande till klienten att förfrågan gick igenom. 
@@ -174,14 +174,14 @@ app.post("/register", async (req,res)=>{
     }
 
     const accounts = await getData("accounts.json");
-    const exist = accounts.find(acc => acc.username.toLowerCase() === username.trim().toLowerCase());
+    const exist = accounts.find(acc=> acc.username.toLowerCase()==username.trim().toLowerCase());
 
-    if (exist) {
-        return res.status(400).json({ success: false, error: "Username already exists." });
+    if(exist){
+        return res.status(400).json({success: false, error: "Username already exists."});
     }
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const account = {
+    const account={
         uid: "uid_" + Date.now(),
         username: username.trim(),
         password: hashedPassword
@@ -190,7 +190,7 @@ app.post("/register", async (req,res)=>{
     accounts.push(account);
     await saveData(accounts, "accounts.json");
 
-    return res.status(201).json({ success: true, account });
+    return res.status(201).json({success: true, account});
 });
 ```
 Register börjar med en post som har en konstant som hämtar ett username och ett password från body. Ifall användarnamnet som är inskrivet inte finns kommer ett error. Sedan hämtas "accounts.json" som innehåller alla konton. Alla konton i listan kollas igenom och ifall andvändarnamnet redan finns skickas det ett error till klienten. Ifall allting är okej blir lösenordet hashat, vilket gömmer det riktiga lösenordet. Sedan skickas den nya listan (gammal + nytt konto). och skickar ett ok meddelande till klienten. 
@@ -205,24 +205,24 @@ app.post("/login", async(req,res)=>{
     const password = req.body.password;
  
     if(!username || !password)
-        return res.status(400).json({success: false, message: "username and password required"});
+        return res.status(400).json({success: false, message:"username and password required"});
  
     const accounts = await getData("accounts.json");
     const account = accounts.find(u => u.username == username);
  
     if(!account)
-        return res.status(401).json({success: false, message: "Invalid username or password"});
+        return res.status(401).json({success: false, message:"Invalid username or password"});
  
     const hashedPassword = await bcrypt.compare(password, account.password);
  
     if(!hashedPassword)
-        return res.status(401).json({success: false, message: "Invalid username or password"});
+        return res.status(401).json({success: false, message:"Invalid username or password"});
 
     req.session.userid = account.uid
     req.session.username = account.username;
     req.session.auth = true
      
-    res.status(200).json({account, success: true, message: "Login success"});
+    res.status(200).json({account, success: true, message:"Login success"});
     console.log(account);
 });
 ```
@@ -249,7 +249,7 @@ app.get("/me", auth, async (req,res)=>{
     }
     res.json({
         loggedIn: true,
-        user: {
+        user:{
             uid: req.session.userid,
             username: req.session.username
         }
@@ -258,13 +258,12 @@ app.get("/me", auth, async (req,res)=>{
 ```
 Ifall session.userid inte finns är loggedIn inte sant. Men ifall dey är det är loggedIn true. 
 
-
 ***
 
+
+
+
 ## Client
-
-
-
 
 
 
@@ -276,11 +275,11 @@ Detta startar react. Det hämtas ett element i HTML där App ska synas, sedan re
 
 ### App
 ```jsx
-function App() {
+function App(){
     const [post, setPost] = React.useState([]);
     const [editingPost, setEditingPost] = React.useState(null);
     const [currentUser, setCurrentUser] = React.useState(null);
-    React.useEffect(() => {
+    React.useEffect(()=>{
 ```
 App är komponenten på sidan där allting sammanställs och sedan visas. Det finns flera konstanter som skrivs in i syfte av att användas i senare funktioner. 
 
@@ -294,8 +293,8 @@ Konstanterna består av två olika värden, en av nuvarande värde och det uppda
 
 ```jsx
 React.useEffect(() => {
-        async function checkLogin() {
-            try {
+        async function checkLogin(){
+            try{
                 const res = await fetch("/me", {
                     method: "GET",
                     credentials: "include"
@@ -306,20 +305,20 @@ React.useEffect(() => {
                 } else {
                     setCurrentUser(null);
                 }
-            } catch (err) {
+            } catch(err){
                 console.error("Session check failed", err);
                 setCurrentUser(null);
             }
         }
         checkLogin();
-    }, []);
+    },[]);
 ```
 "React.useEffect()" körs en gång vid start, och kör asynkront funktionen "checkLogin" som kollar ifall en man är inloggad på ett konto eller inte. Det skickas en "request" till servers "/me" som ska innehålla sessionen. Det ändras sedan till javascript för att klienten ska kunna hantera informationen. Try och catch håller koll om något är fel och har återgärd.  Ifall användaren är inloggod sparas datan i "currentUser", annars blir det null. Ifall en återgärd behövs skickas ett felmeddelande till konsolen och användaren blir får en utloggad status. 
 
 
 ```jsx
-const editPost = (id) => {
-        const postToEdit = post.find(p => p.id === id);
+const editPost = (id)=>{
+        const postToEdit = post.find(p=>p.id==id);
         setEditingPost(postToEdit);
     }
 ```
@@ -327,7 +326,7 @@ Sedan skapas denna för att kunna ändra i en specifik post. Då letas ett speci
 
 #### React-komponenter
 ```jsx
-    return (
+    return(
         <div>
             <Header currentUser={currentUser}></Header>
             <EditPost editingPost={editingPost} setEditingPost={setEditingPost} setPost={setPost}></EditPost>
@@ -344,8 +343,8 @@ Detta är fortsättningen av App. Sidan är har flera React-komponenter vars fun
 
 ### Header
 ```jsx
-function Header({ currentUser }) {
-    return (
+function Header({currentUser}){
+    return(
         <header>
             <div id="title"> <h1 >✦•┈๑⋅⋯ Share Space ⋯⋅๑┈•✦</h1></div>
             <nav>
@@ -356,7 +355,7 @@ function Header({ currentUser }) {
                 {currentUser && <a href="#create">CREATE</a>}
                 {currentUser && <a href="#logout">LOG OUT</a>}
             </nav>
-            {currentUser && (
+            {currentUser &&(
                 <div id="title" className="title">
                     <h4>Welcome "{currentUser.username}"!</h4>
                 </div>
@@ -373,11 +372,11 @@ Header är en react-komponent som finns för alla som besöker webbsidan och är
 
 ### Startsida
 ```jsx
-function Fyp({ post, setPost, editPost, currentUser }) {
-    React.useEffect(() => {
+function Fyp({post, setPost, editPost, currentUser}){
+    React.useEffect(()=>{
         getPost();
-    }, []);
-    async function getPost() {
+    },[]);
+    async function getPost(){
         const res = await fetch("/posts");
         const data = await res.json();
         setPost(data);
@@ -388,15 +387,15 @@ Detta är startsidan som använder sig och tar emot flera props. Props inehålle
 
 #### Delete post
 ```jsx
-    async function deletePost(id) {
+    async function deletePost(id){
         const confirm = window.confirm("Delete this product?")
         if(!confirm) return;
 
-        const res = await fetch("/posts/" + id, {
+        const res = await fetch("/posts/" + id,{
             method: "DELETE",
             credentials: 'include'
         });
-        if (res.ok)
+        if(res.ok)
             setPost(prev => prev.filter(p => p.id != id));
     };
 ```
@@ -405,19 +404,19 @@ Asynkron funktion som raderar en post med ett specifikt id. Confirm är en bekr�
 
 #### HTML-kod
 ```jsx
-    return (
+    return(
         <div>
             <div id="title"><h2>FYP</h2></div>
-            {post.map(p => (
+            {post.map(p=>(
                 <div className="post" key={p.id}>
                     <h3>{p.title}</h3>
                     <p>{p.description}</p>
                     <small>Posted by: {p.username}</small>
                     <br />
-                    {currentUser && currentUser.uid === p.userid && (
+                    {currentUser && currentUser.uid === p.userid &&(
                         <>
-                            <button onClick={() => deletePost(p.id)}>Delete</button>
-                            <button onClick={() => editPost(p.id)}>Edit</button>
+                            <button onClick={()=>deletePost(p.id)}>Delete</button>
+                            <button onClick={()=>editPost(p.id)}>Edit</button>
                         </>
                     )}
                 </div>
@@ -433,37 +432,37 @@ Detta är HTML kod, för hur webbsidan ska se ut för användaren. Knappar som d
 
 ### Create
 ```jsx
-function Create({setPost, currentUser}) {
+function Create({setPost, currentUser}){
 
     if (!currentUser) return null;
 
-    async function savePost(event) {
+    async function savePost(event){
         event.preventDefault();
         const confirm = window.confirm("Create this product?")
         if(!confirm) return;
 
-        const post = {
+        const post={
             title: event.target.title.value,
             description: event.target.description.value
         };
 
-        const res = await fetch("/create", {
+        const res = await fetch("/create",{
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(post),
             credentials: 'include'
         });
 
         const data = await res.json();
         console.log(data);
-        setPost(prev => [data, ...prev]);
+        setPost(prev=>[data, ...prev]);
         window.location.href = '#'
     }
 ```
 Denna funktionen skapar nya inlägg med hjälp av ett formulär. "setPost" är en prop som tas emot för att uppdatera listan som innehåller alla posts, och currentUser används för att checka ifall någon är inloggad eller inte. Ifall ingen är inloggad kommer detta inte renderas alls, så ingen kan ha åtkomst till det genom url. "event.preventDefault()" stoppar sidans naturliga "refresh" när ett formulär skickas, istället hanteras det med JavaScript i backend/servern. En extra bekräftelse skickas till anvädaren. I "const post" hämtas värden som står i formuläret (title, description). Det skickas en request till servern och formulärets information skickas till servern efter datan blir omvandlad till JSON, dessutom skickas cookies med. Svaret från servern tas emot och blir till JavaScript. Listan med posts uppdateras och lägger den nya posten högst upp. Efter det skickas anvädaren tillbaka till startsidan som en stängning av formuläret.
 
 ```jsx
-return (
+return(
         <div id="create" className="content">
             <h1>Create a post</h1>
             <form action="/create" method="post" onSubmit={savePost}>
@@ -481,21 +480,21 @@ HTML-vänlig JSX kod. Exempelvis blir "class" till "className" istället. Funkti
 
 ### Update/Edit
 ```jsx
-function EditPost({ editingPost, setEditingPost, setPost }) {
-    async function EditPostF(event) {
+function EditPost({editingPost, setEditingPost, setPost}){
+    async function EditPostF(event){
         event.preventDefault();
 
         const confirm = window.confirm("Edit this product?")
         if(!confirm) return;
 
-        const updatedPost = {
+        const updatedPost={
             title: event.target.title.value || editingPost.title,
             description: event.target.description.value || editingPost.description,
         };
 
-        const res = await fetch("/posts/" + editingPost.id, {
+        const res = await fetch("/posts/" + editingPost.id,{
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(updatedPost),
             credentials: 'include'
         });
@@ -506,27 +505,27 @@ Detta används för att redigera en post som redan finns i "posts.json" (lista m
         const data = await res.json();
         console.log("status", res.status, data.message);
 
-        if (res.ok) {
-            setPost(prev =>
-                prev.map(p =>
+        if(res.ok){
+            setPost(prev=>
+                prev.map(p=>
                     p.id == editingPost.id ? { ...p, ...updatedPost } : p
                 )
             );
             setEditingPost(null);
         }
     }
-    if (!editingPost) return null;
+    if(!editingPost) return null;
 ```
 Svaret från servern sparas, ifall det lyckas returneras en ny lista. Ifall en post.id matchar den som ska editeras blir den uppdaterad annars behålls den som innan. "setEditing(null)" stänger edit formuläret och en extra säkerthetskontroll läggs till så ifall inget redigeras kommer formuläret inte synas. 
 
 ```jsx
-    return (
+    return(
         <div className="editDiv">
             <form onSubmit={EditPostF}>
                 <input type="text" name="title" placeholder="Title" defaultValue={editingPost.title} maxLength={64} />
                 <input type="text" name="description" placeholder="Description" defaultValue={editingPost.description} />
                 <input type="submit" value="Save" />
-                <button type="button" onClick={() => setEditingPost(null)}>Cancel</button>
+                <button type="button" onClick={()=>setEditingPost(null)}>Cancel</button>
             </form>
         </div>
     )
@@ -539,17 +538,17 @@ Såhär ser formuläret ut, det finns också en begränsning här. "defaultValue
 ```jsx
 function Register(){
     const [message, setMessage] = React.useState("");
-    async function saveAccount(event) {
+    async function saveAccount(event){
         const confirm = window.confirm("Create this account?")
         if(!confirm) return;
         event.preventDefault();
 
-        const account = {
+        const account={
             username: event.target.username.value,
             password: event.target.password.value
         };
 
-        const res = await fetch("/register", {
+        const res = await fetch("/register",{
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(account)
@@ -557,7 +556,7 @@ function Register(){
 
         const data = await res.json();
 
-        if (!data.success) {
+        if(!data.success){
             setMessage(data.error || "Registration failed");
             return;
         }
@@ -571,7 +570,7 @@ function Register(){
 Register funktionen börjar med att skapa en state för ett meddelande, som används för ett status meddelande som ska synas till användaren ifall det gick igenom eller inte. När formuläret skickas in körs en asynkron funktion. Värden hämtas från formuläret (lösenord, användarnamn) som skickas till servern. Efter det tas svaret emot och ifall det inte funkade kommer ett felmeddelande som avbryter registeringen. Om det funkar får användaren se att det var lyckat på hemsidan och båda fälten blir tömda. 
 
 ```jsx
-    return (
+    return(
         <div id="register" className="content">
             <h1>Register a new account</h1>
             <h3 className="errorMessage">{message}</h3>
@@ -608,7 +607,7 @@ function Login({setCurrentUser}){
         })
 
         const data = await res.json();
-        if (!res.ok){
+        if(!res.ok){
             setMessage(data.message || "Login failed");
             return
         }
@@ -644,19 +643,19 @@ HTML-kod som visar hur formuläret ser ut.
 function Logout({currentUser, setCurrentUser}){
     const [message, setMessage] = React.useState("");
 
-    async function logout() {
-        const res = await fetch("/logout", {
+    async function logout(){
+        const res = await fetch("/logout",{
             method: "POST",
             credentials: 'include'
         });
-        if (res.ok) {
+        if(res.ok){
             setCurrentUser(null);
             setMessage("Logged out successfully");
         }
     }
-    if (!currentUser) return null;
+    if(!currentUser)return null;
 
-    return (
+    return(
         <div id="logout" className="content">
             <h1>Logged in as {currentUser.username}</h1>
             <button onClick={logout}>Log Out</button>
