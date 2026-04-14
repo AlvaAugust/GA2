@@ -57,7 +57,7 @@ function getData(dir){
         });
     });
 };
-function auth(req,res,next){
+function auth(req, res, next){
     if(!req.session.auth){
         return res.status(401).json({success: false, message: "Unauthorized"});
     }
@@ -110,7 +110,7 @@ För att använda denna routen måste man ha behörighet (auth), och i detta fal
 
 #### Delete
 ```js
-app.delete("/posts/:id", auth, async (req,res) => {
+app.delete("/posts/:id", auth, async (req,res)=>{
     const allPosts = await getData("posts.json");
 
     const postD = allPosts.find(p => p.id == req.params.id);
@@ -141,7 +141,7 @@ app.put("/posts/:id", auth, async (req,res)=>{
     const updatedPost = allPosts.find(p=>p.id == id);
     if(!updatedPost)return res.status(404).json({success: false, message: "Post doesn't exist"})
 
-    if (updatedPost.userid != req.session.userid) {
+    if (updatedPost.userid != req.session.userid){
         return res.status(403).json({error: "You are not authorized to edit this"});
     }
 
