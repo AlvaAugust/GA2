@@ -60,7 +60,7 @@ app.post("/create", auth, async (req,res)=>{
 
 
 //delete
-app.delete("/posts/:id", auth, async (req,res) => {
+app.delete("/posts/:id", auth, async (req,res)=>{
     const allPosts = await getData("posts.json");
 
     const postD = allPosts.find(p => p.id == req.params.id);
@@ -94,22 +94,20 @@ app.put("/posts/:id", auth, async (req,res)=>{
     await saveData(allPosts, "posts.json");
 
     res.status(200).json({success:true, message:"Post has been updated"})
-
 });
 
-//register
 app.post("/register", async (req,res)=>{
     const { username, password } = req.body;
 
-    //trim() ifall space är innan namnet så tas det bort
+    //trim() space tas bort
     if (!username || !username.trim() || !password || !password.trim()) {
         return res.status(400).json({ success: false, error: "Required" });
     }
 
     const accounts = await getData("accounts.json");
-    const exist = accounts.find(acc => acc.username.toLowerCase() === username.trim().toLowerCase());
+    const exist = accounts.find(acc => acc.username.toLowerCase());
     if (exist) {
-        return res.status(400).json({ success: false, error: "Username already exists." });
+        return res.status(400).json({ success: false, error: "Username already exists" });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
 
