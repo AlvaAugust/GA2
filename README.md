@@ -34,7 +34,7 @@ Här möjliggörs sessioner i applikationen. Sessioner handlar om att spara ner 
 ***
 ### Importerar Funktioner
 ```js
-const {getData, saveData, auth} = require("./function")
+const {getData, saveData, auth}= require("./function")
 ```
 Här importeras övriga funktioner som används flera gånger i koden.
 
@@ -88,7 +88,8 @@ app.get("/posts", async (req,res)=>{
             });
 
             res.json(postUsername);
-    } catch (err) {
+    } 
+    catch (err){
         console.error("posts failed", err);
         res.status(500).json({ error : "Posts went wrong"})
     }
@@ -167,7 +168,7 @@ Detta är en route för redigering av posts. Det hämtas id, posts.json, och en 
 
 ```js
 app.post("/register", async (req,res)=>{
-    const { username, password } = req.body;
+    const {username, password}= req.body;
     
     if (!username || !username.trim() || !password || !password.trim()) {
         return res.status(400).json({ success: false, error: "Required" });
@@ -208,7 +209,7 @@ app.post("/login", async(req,res)=>{
         return res.status(400).json({success: false, message:"username and password required"});
  
     const accounts = await getData("accounts.json");
-    const account = accounts.find(u => u.username == username);
+    const account = accounts.find(u=> u.username == username);
  
     if(!account)
         return res.status(401).json({success: false, message:"Invalid username or password"});
@@ -292,7 +293,7 @@ App är komponenten på sidan där allting sammanställs och sedan visas. Det fi
 Konstanterna består av två olika värden, en av nuvarande värde och det uppdaterade värdet. "React.useSatte(null)" står för att det inte används vid detta tillfälle, som används vid uppdatering av en produkt eller ifall en användare är inloggad, eftersom det inte sker hela tidan är den default-värdet null. 
 
 ```jsx
-React.useEffect(() => {
+React.useEffect(()=> {
         async function checkLogin(){
             try{
                 const res = await fetch("/me", {
@@ -302,10 +303,12 @@ React.useEffect(() => {
                 const data = await res.json();
                 if (res.ok && data.loggedIn) {
                     setCurrentUser(data.user);
-                } else {
+                }
+                else{
                     setCurrentUser(null);
                 }
-            } catch(err){
+            }
+            catch(err){
                 console.error("Session check failed", err);
                 setCurrentUser(null);
             }
@@ -396,7 +399,7 @@ Detta är startsidan som använder sig och tar emot flera props. Props inehålle
             credentials: 'include'
         });
         if(res.ok)
-            setPost(prev => prev.filter(p => p.id != id));
+            setPost(prev=> prev.filter(p=> p.id != id));
     };
 ```
 Asynkron funktion som raderar en post med ett specifikt id. Confirm är en bekräftelse som stoppar eller genomför raderingen. Det skickas en delete och cookies request till servern/backend med en fetch. Ifall det lyckas uppdateras listan av posts, en ny lista skapas där posten med det specifika id är borttagen.
@@ -578,7 +581,7 @@ Register funktionen börjar med att skapa en state för ett meddelande, som anv�
                 <input type="text" name="username" placeholder="Username" maxLength={20} required />
                 <input type="password" name="password" placeholder="Password" minLength={4} required />
                 <button type="submit">Create Account</button>
-                <button type="button" onClick={() => window.location.href = '#'}>Cancel</button>
+                <button type="button" onClick={()=> window.location.href = '#'}>Cancel</button>
             </form>
         </div>
     )
@@ -628,7 +631,7 @@ Här loggar man in på kontot som har skapats och därför behöver Login funkti
                 <input type="text" name="username" placeholder="Username" />
                 <input type="password" name="password" placeholder="Password" minLength={4} />
                 <input type="submit" value="Log in" />
-                <button type="button" onClick={() => window.location.href = '#'}>Cancel</button>
+                <button type="button" onClick={()=> window.location.href = '#'}>Cancel</button>
             </form>
             {message && <p>{message}</p>}
         </div>
