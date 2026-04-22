@@ -10,7 +10,6 @@ app.listen(port,()=>{
 });
 
 app.use(express.json()); //tillåter json res.json osv..
-app.use(express.urlencoded({extended:true}));
 app.use(express.static("client"));
 
 //cookies
